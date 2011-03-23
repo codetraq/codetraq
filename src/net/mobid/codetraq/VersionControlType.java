@@ -1,5 +1,5 @@
 /*
- * VCSType.java
+ * VersionControlType.java
  *
  * Enumeration containing the types of VCS we support.
  */
@@ -10,13 +10,13 @@ package net.mobid.codetraq;
  *
  * @author viper
  */
-public enum VCSType {
+public enum VersionControlType {
 
 	SVN("subversion");
 
 	private final String _longName;
 
-	VCSType(String longName) {
+	VersionControlType(String longName) {
 		_longName = longName;
 	}
 

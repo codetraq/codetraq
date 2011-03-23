@@ -8,7 +8,8 @@ package net.mobid.codetraq.runnables;
 
 import java.util.Iterator;
 import java.util.logging.Level;
-import net.mobid.codetraq.VCSType;
+import net.mobid.codetraq.VersionControlChecker;
+import net.mobid.codetraq.VersionControlType;
 import net.mobid.codetraq.persistence.MessageDTO;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
@@ -24,25 +25,10 @@ import org.tmatesoft.svn.core.SVNLogEntryPath;
  *
  * @author viper
  */
-public class SvnChecker implements Runnable {
-
-	private ServerDTO _server = null;
-	private UserDTO _user = null;
-	private DbUtility _db = null;
+public class SvnChecker extends VersionControlChecker implements Runnable {
 
 	public SvnChecker(ServerDTO server, UserDTO user, DbUtility db) {
-		_server = server;
-		_user = user;
-		_db = db;
-	}
-
-	private boolean checkServerInUserRecord() {
-		if (_db.isServerInUserRecord(_server.getServerAddress(), _user.getId())) {
-			return true;
-		} else {
-			_db.addServerToUserRecord(_server.getServerAddress(), _user.getId());
-		}
-		return false;
+		super(server, user, db);
 	}
 
 	/**
@@ -60,7 +46,7 @@ public class SvnChecker implements Runnable {
 			throw new Exception("Cannot find server " + _server.getServerAddress() +
 				" in the server revision list.");
 		}
-		if (sr.getVersionControlType() == VCSType.SVN) {
+		if (sr.getVersionControlType() == VersionControlType.SVN) {
 			if (ur.getLastRevision() < sr.getLastRevision()) {
 				// we update the UserRevision object...
 				ur.setLastRevision(sr.getLastRevision());
@@ -72,9 +58,9 @@ public class SvnChecker implements Runnable {
 		return false;
 	}
 
-	private void sendRevisionMessage(ServerRevision sr) {		
+	protected void sendRevisionMessage(ServerRevision sr) {
 		MessageDTO message = new MessageDTO();
-		if (sr.getVersionControlType() == VCSType.SVN) {
+		if (sr.getVersionControlType() == VersionControlType.SVN) {
 			SVNLogEntry latestEntry = (SVNLogEntry)sr.getLastMessage();
 			message.setAuthor(latestEntry.getAuthor());
 			if (latestEntry.getChangedPaths().size() > 0) {
