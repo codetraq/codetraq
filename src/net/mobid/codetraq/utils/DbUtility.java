@@ -48,12 +48,16 @@ public class DbUtility {
 		_db = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "messages.db");
 	}
 
+	public int getMessagePopulations() {
+		ObjectSet result = _db.queryByExample(MessageDTO.class);
+		return result.size();
+	}
+
 	public void saveMessage(MessageDTO value) throws DbException {
 		if (getMessageByTime(value.getTimestamp()).hasNext()) {
 			throw new DbException("Duplicate timestamp found");
 		}
 		_db.store(value);
-		_db.commit();
 	}
 
 	public void updateMessageRetries(MessageDTO value) {
@@ -61,7 +65,6 @@ public class DbUtility {
 		MessageDTO found = (MessageDTO)result.next();
 		found.appendRetries();
 		_db.store(found);
-		_db.commit();
 	}
 
 	public List<MessageDTO> getAllUnsentMessages() {
@@ -73,7 +76,6 @@ public class DbUtility {
 		while(result.hasNext()) {
 			MessageDTO m = (MessageDTO)result.next();
 			_db.delete(m);
-			_db.commit();
 		}
 	}
 
@@ -119,7 +121,7 @@ public class DbUtility {
 		}
 	}
 
-	// REVISION database
+	// USER REVISION database
 	private void openUserRevisionDb() {
 		_userRevDb = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "user.db");
 	}
@@ -128,6 +130,11 @@ public class DbUtility {
 		if (_userRevDb != null) {
 			_userRevDb.close();
 		}
+	}
+
+	public int getUserRecordPopulations() {
+		ObjectSet result = _userRevDb.queryByExample(UserRevision.class);
+		return result.size();
 	}
 
 	public boolean isServerInUserRecord(String address, String owner) {
@@ -145,8 +152,14 @@ public class DbUtility {
 		UserRevision r = new UserRevision();
 		r.setServerAddress(address);
 		r.setOwner(owner);
+		int records = getUserRecordPopulations();
 		_userRevDb.store(r);
-		_userRevDb.commit();
+		int after = getUserRecordPopulations();
+		LogService.writeMessage("CHECK_ADD_UR: before " + records + "/after " + after);
+		if (records == after) {
+			LogService.writeMessage("WARNING: Adding new server to user database seems to have failed. (address: " +
+				address + "; owner: " + owner + ")");
+		}
 	}
 
 	public UserRevision getUserLatestRevision(String address, String owner) {
@@ -170,10 +183,10 @@ public class DbUtility {
 			UserRevision found = (UserRevision)result.next();
 			found.setLastRevision(ur.getLastRevision());
 			_userRevDb.store(found);
-			_userRevDb.commit();
 		}
 	}
 
+	// SERVER REVISION
 	private void openServerRevisionDb() {
 		_serverRevDb = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "revision.db");
 	}
@@ -182,6 +195,11 @@ public class DbUtility {
 		if (_serverRevDb != null) {
 			_serverRevDb.close();
 		}
+	}
+
+	public int getServerRevisionPopulations() {
+		ObjectSet result = _serverRevDb.queryByExample(ServerRevision.class);
+		return result.size();
 	}
 
 	public List<ServerRevision> getAllServerRevisions() {
@@ -205,8 +223,14 @@ public class DbUtility {
 	}
 
 	public void addServerRevision(ServerRevision sr) {
+		int srs = getServerRevisionPopulations();
 		_serverRevDb.store(sr);
-		_serverRevDb.commit();
+		int after = getServerRevisionPopulations();
+		LogService.writeMessage("CHECK_ADD_SR: before " + srs + "/after " + after);
+		if (srs == after) {
+			LogService.writeMessage("WARNING: Adding new server revision seems to have failed. (server: " +
+				sr.getServerAddress() + ")");
+		}
 	}
 
 	public void updateServerLatestRevision(ServerRevision sr) {
@@ -215,11 +239,12 @@ public class DbUtility {
 		ObjectSet result = _serverRevDb.queryByExample(template);
 		if (result.hasNext()) {
 			ServerRevision found = (ServerRevision)result.next();
+			LogService.writeMessage("CHECK_BEFORE_SR_UPDATE: rev " + found.getLastRevision());
 			found.setLastCheckedTimestamp(sr.getLastCheckedTimestamp());
 			found.setLastMessage(sr.getLastMessage());
 			found.setLastRevision(sr.getLastRevision());
 			_serverRevDb.store(found);
-			_serverRevDb.commit();
+			LogService.writeMessage("CHECK_AFTER_SR_UPDATE: rev " + found.getLastRevision());
 		}
 	}
 
@@ -231,7 +256,6 @@ public class DbUtility {
 			ServerRevision found = (ServerRevision)result.next();
 			found.setShouldUpdate(true);
 			_serverRevDb.store(found);
-			_serverRevDb.commit();
 		}
 	}
 
@@ -243,7 +267,6 @@ public class DbUtility {
 			ServerRevision found = (ServerRevision)result.next();
 			found.setShouldUpdate(false);
 			_serverRevDb.store(found);
-			_serverRevDb.commit();
 		}
 	}
 
@@ -254,7 +277,6 @@ public class DbUtility {
 			ServerRevision item = (ServerRevision)result.next();
 			item.setShouldUpdate(false);
 			_serverRevDb.store(item);
-			_serverRevDb.commit();
 		}
 	}
 

@@ -280,7 +280,7 @@ public class Main {
 			s.setOwnerId(owner);
 			s.setShortName(shortName);
 			if (sType.equalsIgnoreCase("svn")) {
-				s.setServerType(VCSType.SVN);
+				s.setServerType(VersionControlType.SVN);
 			}
 			s.setServerAddress(sAddress);
 			s.setServerUsername(sUsername);
@@ -317,6 +317,7 @@ public class Main {
 			try {
 				Thread.sleep(USER_UPDATE_IN_MINUTES * 60 * 1000);
 			} catch (InterruptedException ex) {
+				LogService.writeLog(Level.SEVERE, ex);
 			}
 		}
 	}

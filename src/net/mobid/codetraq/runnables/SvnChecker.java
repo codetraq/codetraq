@@ -61,26 +61,15 @@ public class SvnChecker extends VersionControlChecker implements Runnable {
 	protected void sendRevisionMessage(ServerRevision sr) {
 		MessageDTO message = new MessageDTO();
 		if (sr.getVersionControlType() == VersionControlType.SVN) {
-			SVNLogEntry latestEntry = (SVNLogEntry)sr.getLastMessage();
-			message.setAuthor(latestEntry.getAuthor());
-			if (latestEntry.getChangedPaths().size() > 0) {
-				Iterator i = latestEntry.getChangedPaths().keySet().iterator();
-				while (i.hasNext()) {
-					SVNLogEntryPath entry = (SVNLogEntryPath) latestEntry.getChangedPaths().get(i.next());
-					StringBuilder sb = new StringBuilder();
-					sb.append(entry.getType());
-					sb.append(" ");
-					sb.append(entry.getPath());
-					message.addModifiedFile(sb.toString());
-				}
-			}
-			message.setMessage(latestEntry.getMessage());
+			message.setAuthor(sr.getLastAuthor());
+			message.setMessage(sr.getLastMessage());
 			message.setRecipient(_user);
-			message.setRevisionNumber(latestEntry.getRevision());
+			message.setRevisionNumber(sr.getLastRevision());
 			message.setServerName(_server.getShortName());
 			message.setSubject("New revision detected for " + _server.getShortName() +
-				" (" + latestEntry.getRevision() + ")");
-			message.setTimestamp(latestEntry.getDate().getTime());
+				" (" + sr.getLastRevision() + ")");
+			message.setTimestamp(sr.getLastRevisionTimestamp());
+			message.setFiles(sr.getFiles());
 		}
 		
 		try {

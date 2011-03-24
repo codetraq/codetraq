@@ -94,11 +94,8 @@ public class MessageDTO {
 		return _files;
 	}
 
-	public void addModifiedFile(String value) {
-		if (_files == null) {
-			_files = new ArrayList<String>();
-		}
-		_files.add(value);
+	public void setFiles(List<String> value) {
+		_files = value;
 	}
 
 	// status: sent? Y/N

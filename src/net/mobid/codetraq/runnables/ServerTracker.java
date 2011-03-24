@@ -9,14 +9,16 @@ package net.mobid.codetraq.runnables;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
-import net.mobid.codetraq.VCSType;
+import net.mobid.codetraq.VersionControlType;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.utils.DbUtility;
 import net.mobid.codetraq.utils.LogService;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
+import org.tmatesoft.svn.core.SVNLogEntryPath;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
@@ -53,13 +55,31 @@ public class ServerTracker implements Runnable {
 				Iterator it = servers.iterator();
 				while (it.hasNext()) {
 					ServerRevision sr = (ServerRevision) it.next();
-					if (sr.shoudlUpdate()) {
-						if (sr.getVersionControlType() == VCSType.SVN) {
+					if (sr.shoudlUpdate() && sr.getMinutesSinceLastCheck() >= UPDATE_IN_MINUTES) {
+						if (sr.getVersionControlType() == VersionControlType.SVN) {
 							SVNLogEntry latestLogEntry = getSvnLatestRevisionHistory(sr);
 							if (latestLogEntry.getRevision() > sr.getLastRevision()) {
-								sr.setLastMessage(latestLogEntry);
-								sr.setLastRevision(latestLogEntry.getRevision());
+								LogService.writeMessage("Found latest revision for " +
+									sr.getServerAddress() + " with timestamp " +
+									latestLogEntry.getDate().getTime());
 								sr.setLastCheckedTimestamp(System.currentTimeMillis());
+								// revision-related changes
+								sr.setLastMessage(latestLogEntry.getMessage());
+								sr.setLastRevision(latestLogEntry.getRevision());
+								sr.setLastAuthor(latestLogEntry.getAuthor());
+								sr.setLastCommitter(latestLogEntry.getAuthor());
+								sr.setLastRevisionTimestamp(latestLogEntry.getDate().getTime());
+								if (latestLogEntry.getChangedPaths().size() > 0) {
+									sr.clearFiles();
+									Iterator iterator =  latestLogEntry.getChangedPaths().keySet().iterator();
+									while (iterator.hasNext()) {
+										SVNLogEntryPath ep = (SVNLogEntryPath)latestLogEntry.getChangedPaths()
+											.get(iterator.next());
+										StringBuilder sb = new StringBuilder();
+										sb.append(ep.getType()).append(" ").append(ep.getPath());
+										sr.addModifiedFile(sb.toString());
+									}
+								}
 								_db.updateServerLatestRevision(sr);
 							}
 						}

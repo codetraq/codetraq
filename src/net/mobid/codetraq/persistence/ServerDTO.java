@@ -6,7 +6,7 @@
 
 package net.mobid.codetraq.persistence;
 
-import net.mobid.codetraq.VCSType;
+import net.mobid.codetraq.VersionControlType;
 
 /**
  *
@@ -34,13 +34,13 @@ public class ServerDTO {
 		_shortName = value;
 	}
 
-	private VCSType _serverType = null;
+	private VersionControlType _serverType = null;
 
-	public VCSType getServerType() {
+	public VersionControlType getServerType() {
 		return _serverType;
 	}
 
-	public void setServerType(VCSType value) {
+	public void setServerType(VersionControlType value) {
 		_serverType = value;
 	}
 

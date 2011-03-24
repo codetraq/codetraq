@@ -6,7 +6,9 @@
 
 package net.mobid.codetraq.persistence;
 
-import net.mobid.codetraq.VCSType;
+import java.util.ArrayList;
+import java.util.List;
+import net.mobid.codetraq.VersionControlType;
 import org.joda.time.Period;
 
 /**
@@ -21,13 +23,13 @@ public class ServerRevision {
 		return _shouldUpdate;
 	}
 
-	private VCSType _versionControl = null;
+	private VersionControlType _versionControl = null;
 
-	public VCSType getVersionControlType() {
+	public VersionControlType getVersionControlType() {
 		return _versionControl;
 	}
 
-	public void setVersionControlType(VCSType value) {
+	public void setVersionControlType(VersionControlType value) {
 		_versionControl = value;
 	}
 
@@ -69,16 +71,6 @@ public class ServerRevision {
 		_serverPassword = value;
 	}
 
-	private long _lastRevision = 0;
-
-	public long getLastRevision() {
-		return _lastRevision;
-	}
-
-	public void setLastRevision(long value) {
-		_lastRevision = value;
-	}
-
 	public long _lastCheckedTimestamp = 0;
 
 	public long getLastCheckedTimestamp() {
@@ -89,21 +81,85 @@ public class ServerRevision {
 		_lastCheckedTimestamp = value;
 	}
 
-	private Object _lastMessage = null;
-
-	public Object getLastMessage() {
-		return _lastMessage;
-	}
-
-	public void setLastMessage(Object value) {
-		_lastMessage = value;
-	}
-
 	public int getMinutesSinceLastCheck() {
 		if (getLastCheckedTimestamp() > 0)  {
 			Period p = new Period(getLastCheckedTimestamp(), System.currentTimeMillis());
 			return p.getMinutes();
 		}
-		return -1;
+		return Integer.MAX_VALUE;
+	}
+	
+	// These properties are linked to a particular Revision --------------------------------------
+	// Needed to construct a Message
+	private String _rLastMessage = null;
+
+	public String getLastMessage() {
+		return _rLastMessage;
+	}
+
+	public void setLastMessage(String value) {
+		_rLastMessage = value;
+	}
+
+	private long _rLastRevision = 0;
+
+	public long getLastRevision() {
+		return _rLastRevision;
+	}
+
+	private long _rLastTimestamp = 0;
+
+	public long getLastRevisionTimestamp() {
+		return _rLastTimestamp;
+	}
+
+	public void setLastRevisionTimestamp(long value) {
+		_rLastTimestamp = value;
+	}
+
+	public void setLastRevision(long value) {
+		_rLastRevision = value;
+	}
+
+	private String _rLastAuthor = null;
+
+	public String getLastAuthor() {
+		return _rLastAuthor;
+	}
+
+	public void setLastAuthor(String value) {
+		_rLastAuthor = value;
+	}
+
+	private String _rLastCommitter = null;
+
+	public String getLastCommitter() {
+		return _rLastCommitter;
+	}
+
+	public void setLastCommitter(String value) {
+		_rLastCommitter = value;
+	}
+
+	private List<String> _files = null;
+
+	public List<String> getFiles() {
+		if (_files == null) {
+			_files = new ArrayList<String>();
+		}
+		return _files;
+	}
+
+	public void addModifiedFile(String value) {
+		if (_files == null) {
+			_files = new ArrayList<String>();
+		}
+		_files.add(value);
+	}
+
+	public void clearFiles() {
+		if (_files != null && !_files.isEmpty()) {
+			_files.clear();
+		}
 	}
 }

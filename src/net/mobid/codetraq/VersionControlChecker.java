@@ -4,6 +4,7 @@ import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserDTO;
 import net.mobid.codetraq.utils.DbUtility;
+import net.mobid.codetraq.utils.LogService;
 
 /**
  * VersionControlChecker.java
@@ -28,6 +29,8 @@ public abstract class VersionControlChecker {
 		if (_db.isServerInUserRecord(_server.getServerAddress(), _user.getId())) {
 			return true;
 		} else {
+			LogService.writeMessage("Adding server " + _server.getServerAddress() +
+				" with owner " + _server.getOwnerId() + " to user database");
 			_db.addServerToUserRecord(_server.getServerAddress(), _user.getId());
 		}
 		return false;
