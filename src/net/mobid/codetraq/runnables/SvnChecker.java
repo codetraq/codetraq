@@ -6,20 +6,15 @@
  */
 package net.mobid.codetraq.runnables;
 
-import java.util.Iterator;
 import java.util.logging.Level;
 import net.mobid.codetraq.VersionControlChecker;
 import net.mobid.codetraq.VersionControlType;
-import net.mobid.codetraq.persistence.MessageDTO;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserDTO;
 import net.mobid.codetraq.persistence.UserRevision;
 import net.mobid.codetraq.utils.DbUtility;
-import net.mobid.codetraq.utils.DbUtility.DbException;
 import net.mobid.codetraq.utils.LogService;
-import org.tmatesoft.svn.core.SVNLogEntry;
-import org.tmatesoft.svn.core.SVNLogEntryPath;
 
 /**
  *
@@ -38,6 +33,7 @@ public class SvnChecker extends VersionControlChecker implements Runnable {
 	 * recorded for a UserRevision.
 	 * @return true if there is a newer revision and UserRevision needs to be updated
 	 */
+	@Override
 	public boolean compareLatestRevisionHistory() throws Exception {
 		checkServerInUserRecord();
 		UserRevision ur = _db.getUserLatestRevision(_server.getServerAddress(), _user.getId());
@@ -56,31 +52,6 @@ public class SvnChecker extends VersionControlChecker implements Runnable {
 			}
 		}
 		return false;
-	}
-
-	protected void sendRevisionMessage(ServerRevision sr) {
-		MessageDTO message = new MessageDTO();
-		if (sr.getVersionControlType() == VersionControlType.SVN) {
-			message.setAuthor(sr.getLastAuthor());
-			message.setMessage(sr.getLastMessage());
-			message.setRecipient(_user);
-			message.setRevisionNumber(sr.getLastRevision());
-			message.setServerName(_server.getShortName());
-			message.setSubject("New revision detected for " + _server.getShortName() +
-				" (" + sr.getLastRevision() + ")");
-			message.setTimestamp(sr.getLastRevisionTimestamp());
-			message.setFiles(sr.getFiles());
-		}
-		
-		try {
-			// add into the database
-			_db.saveMessage(message);
-			LogService.writeMessage("Adding Message object for " + _user.getNickname() + " to database.");
-		} catch (DbException ex) {
-			LogService.getLogger(SvnChecker.class.getName()).log(Level.SEVERE, null, ex);
-			LogService.writeLog(Level.SEVERE, ex);
-		}
-
 	}
 
 	public void run() {

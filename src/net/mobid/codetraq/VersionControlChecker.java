@@ -1,9 +1,12 @@
 package net.mobid.codetraq;
 
+import java.util.logging.Level;
+import net.mobid.codetraq.persistence.MessageDTO;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserDTO;
 import net.mobid.codetraq.utils.DbUtility;
+import net.mobid.codetraq.utils.DbUtility.DbException;
 import net.mobid.codetraq.utils.LogService;
 
 /**
@@ -38,5 +41,31 @@ public abstract class VersionControlChecker {
 
 	public abstract boolean compareLatestRevisionHistory() throws Exception;
 
-	protected abstract void sendRevisionMessage(ServerRevision sr);
+	protected void sendRevisionMessage(ServerRevision sr) {
+		MessageDTO message = new MessageDTO();
+		message.setAuthor(sr.getLastAuthor());
+		message.setMessage(sr.getLastMessage());
+		message.setRecipient(_user);
+		message.setServerName(_server.getShortName());
+		message.setTimestamp(sr.getLastRevisionTimestamp());
+		message.setFiles(sr.getFiles());
+		if (sr.getVersionControlType() == VersionControlType.SVN) {
+			message.setRevisionNumber(sr.getLastRevision());
+			message.setSubject("New revision detected for " + _server.getShortName() +
+				" (" + sr.getLastRevision() + ")");
+		} else if (sr.getVersionControlType() == VersionControlType.GIT) {
+			message.setRevisionId(sr.getLastRevisionId());
+			message.setSubject("New revision detected for " + _server.getShortName() +
+				" (" + sr.getLastRevisionId() + ")");
+		}
+
+		try {
+			// add into the database
+			_db.saveMessage(message);
+			LogService.writeMessage("Adding Message object for " + _user.getNickname() + " to database.");
+		} catch (DbException ex) {
+			LogService.getLogger(VersionControlChecker.class.getName()).log(Level.SEVERE, null, ex);
+			LogService.writeLog(Level.SEVERE, ex);
+		}
+	}
 }

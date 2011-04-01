@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.UserDTO;
+import net.mobid.codetraq.runnables.GitChecker;
 import net.mobid.codetraq.runnables.MessageTracker;
 import net.mobid.codetraq.runnables.ServerTracker;
 import net.mobid.codetraq.runnables.SvnChecker;
@@ -276,11 +277,34 @@ public class Main {
 					|| !Utilities.checkValue("server password", sPassword)) {
 				return false;
 			}
+			// need to check that server's short name is unique, as we need it to
+			// create git local repo (if type is 'git')
+			if (!Utilities.checkServerShortName(getServers(), shortName)) {
+				System.out.printf("Server short name must be unique. '%s' is already used for another server.%n",
+					shortName);
+				return false;
+			}
+			// if this is a GIT repo, we need a branch name
+			String sBranch = null;
+			if (sType.equalsIgnoreCase("git")) {
+				if (!Utilities.checkNode("git branch", server.getAttributes().getNamedItem("branch"))) {
+					System.out.printf("GIT server %s does not have a specified branch. Please review your configuration file.%n",
+						sAddress);
+					return false;
+				}
+				sBranch = server.getAttributes().getNamedItem("branch").getTextContent();
+				if (!Utilities.checkValue("git branch", sBranch)) {
+					return false;
+				}
+			}
 			ServerDTO s = new ServerDTO();
 			s.setOwnerId(owner);
 			s.setShortName(shortName);
 			if (sType.equalsIgnoreCase("svn")) {
 				s.setServerType(VersionControlType.SVN);
+			} else if (sType.equalsIgnoreCase("git")) {
+				s.setServerType(VersionControlType.GIT);
+				s.setServerBranch(sBranch);
 			}
 			s.setServerAddress(sAddress);
 			s.setServerUsername(sUsername);
@@ -310,9 +334,15 @@ public class Main {
 					LogService.writeMessage("Cannot find user " + s.getOwnerId());
 					continue;
 				}
-				SvnChecker svnChecker = new SvnChecker(s, user, _traqdb);
-				Thread t = new Thread(svnChecker);
-				t.start();
+				if (s.getServerType() == VersionControlType.SVN) {
+					SvnChecker svnChecker = new SvnChecker(s, user, _traqdb);
+					Thread t = new Thread(svnChecker);
+					t.start();
+				} else if (s.getServerType() == VersionControlType.GIT) {
+					GitChecker gitChecker = new GitChecker(s, user, _traqdb);
+					Thread t = new Thread(gitChecker);
+					t.start();
+				}
 			}
 			try {
 				Thread.sleep(USER_UPDATE_IN_MINUTES * 60 * 1000);

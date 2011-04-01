@@ -73,4 +73,14 @@ public class ServerDTO {
 	public void setServerPassword(String value) {
 		_serverPassword = value;
 	}
+
+	private String _serverBranch = "HEAD";
+
+	public String getServerBranch() {
+		return _serverBranch;
+	}
+
+	public void setServerBranch(String value) {
+		_serverBranch = value;
+	}
 }

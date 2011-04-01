@@ -63,7 +63,7 @@ public class MessageDTO {
 	}
 
 	// revision number for this message
-	private long _rev = -1;;
+	private long _rev = -1;
 
 	public long getRevisionNumber() {
 		return _rev;
@@ -71,6 +71,17 @@ public class MessageDTO {
 
 	public void setRevisionNumber(long value) {
 		_rev = value;
+	}
+
+	// revision id for git
+	private String _strRev = null;
+
+	public String getRevisionId() {
+		return _strRev;
+	}
+
+	public void setRevisionId(String value) {
+		_strRev = value;
 	}
 
 	// message sent by the submitter
@@ -137,7 +148,12 @@ public class MessageDTO {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getSubject()).append(cr);
 		sb.append(liner).append(cr);
-		sb.append("revision: ").append(getRevisionNumber()).append(cr);
+		if (getRevisionNumber() > 0) {
+			sb.append("revision: ").append(getRevisionNumber()).append(cr);
+		}
+		if (getRevisionId() != null) {
+			sb.append("revision: ").append(getRevisionId()).append(cr);
+		}
 		sb.append("author: ").append(getAuthor()).append(cr);
 		sb.append("date: ").append(Utilities.getFormattedTime(getTimestamp())).append(cr);
 		sb.append("message: ").append(getMessage()).append(cr);

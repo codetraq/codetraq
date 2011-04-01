@@ -37,6 +37,16 @@ public class ServerRevision {
 		_shouldUpdate = value;
 	}
 
+	private String _serverShortName = null;
+
+	public String getServerShortName() {
+		return _serverShortName;
+	}
+
+	public void setServerShortName(String value) {
+		_serverShortName = value;
+	}
+
 	private String _serverAddress = null;
 
 	public String getServerAddress() {
@@ -101,10 +111,24 @@ public class ServerRevision {
 		_rLastMessage = value;
 	}
 
-	private long _rLastRevision = 0;
+	private long _rLastRevision = -1;
 
 	public long getLastRevision() {
 		return _rLastRevision;
+	}
+
+	public void setLastRevision(long value) {
+		_rLastRevision = value;
+	}
+
+	private String _rLastRevisionId = null;
+
+	public String getLastRevisionId() {
+		return _rLastRevisionId;
+	}
+
+	public void setLastRevisionId(String value) {
+		_rLastRevisionId = value;
 	}
 
 	private long _rLastTimestamp = 0;
@@ -115,10 +139,6 @@ public class ServerRevision {
 
 	public void setLastRevisionTimestamp(long value) {
 		_rLastTimestamp = value;
-	}
-
-	public void setLastRevision(long value) {
-		_rLastRevision = value;
 	}
 
 	private String _rLastAuthor = null;

@@ -8,6 +8,7 @@ package net.mobid.codetraq.utils;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,6 +23,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import net.mobid.codetraq.persistence.ServerDTO;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Document;
@@ -93,6 +95,56 @@ public class Utilities {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean createGitReposDir() {
+		File gitReposDir = new File("gitrepos");
+		if (!gitReposDir.exists()) {
+			try {
+				return gitReposDir.mkdir();
+			} catch(SecurityException ex) {
+				LogService.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
+				LogService.writeLog(Level.SEVERE, ex);
+			}
+		}
+		return false;
+	}
+
+	public static void createGitProjectDir(String name) {
+		boolean gitReposStatus = createGitReposDir();
+		File gitReposDir = new File("gitrepos");
+		if (gitReposStatus || (!gitReposStatus && gitReposDir.exists())) {
+			if (gitReposDir.isDirectory() && gitReposDir.canWrite()) {
+				File gitProjectDir = new File("gitrepos/" + name);
+				try {
+					gitProjectDir.mkdir();
+				} catch(SecurityException ex) {
+					LogService.getLogger(Utilities.class.getName()).log(Level.SEVERE, null, ex);
+					LogService.writeLog(Level.SEVERE, ex);
+				}
+			}
+		}
+	}
+
+	public static boolean checkServerShortName(List<ServerDTO> servers, String sName) {
+		for (ServerDTO s : servers) {
+			if (s.getShortName().equalsIgnoreCase(sName)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isHexString(String value) {
+		boolean isHex = true;
+		for (char c : value.toCharArray()) {
+			if (!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f') &&
+				!(c >= 'A' && c <= 'F')) {
+				isHex = false;
+				break;
+			}
+		}
+		return isHex;
 	}
 
 }

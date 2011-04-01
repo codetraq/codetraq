@@ -46,4 +46,14 @@ public class UserRevision {
 		_lastRevision = value;
 	}
 
+	private String _lastRevisionId = null;
+
+	public String getLastRevisionId() {
+		return _lastRevisionId;
+	}
+
+	public void setLastRevisionId(String value) {
+		_lastRevisionId = value;
+	}
+
 }

@@ -12,7 +12,8 @@ package net.mobid.codetraq;
  */
 public enum VersionControlType {
 
-	SVN("subversion");
+	SVN("subversion"),
+	GIT("git");
 
 	private final String _longName;
 
