@@ -62,18 +62,7 @@ public class MessageDTO {
 		_serverName = value;
 	}
 
-	// revision number for this message
-	private long _rev = -1;
-
-	public long getRevisionNumber() {
-		return _rev;
-	}
-
-	public void setRevisionNumber(long value) {
-		_rev = value;
-	}
-
-	// revision id for git
+	// revision id for git/svn
 	private String _strRev = null;
 
 	public String getRevisionId() {
@@ -148,9 +137,6 @@ public class MessageDTO {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getSubject()).append(cr);
 		sb.append(liner).append(cr);
-		if (getRevisionNumber() > 0) {
-			sb.append("revision: ").append(getRevisionNumber()).append(cr);
-		}
 		if (getRevisionId() != null) {
 			sb.append("revision: ").append(getRevisionId()).append(cr);
 		}

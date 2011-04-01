@@ -86,6 +86,8 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 		if (sr.getVersionControlType() == VersionControlType.GIT) {
 			if (ur.getLastRevisionId() == null || (!ur.getLastRevisionId().equals(sr.getLastRevisionId()))) {
+				LogService.writeMessage("Updating user revision for " + ur.getServerAddress() +
+					"(owner " + ur.getOwner() + ")");
 				// update the UserRevision object
 				ur.setLastRevisionId(sr.getLastRevisionId());
 				_db.updateUserLatestRevision(ur);

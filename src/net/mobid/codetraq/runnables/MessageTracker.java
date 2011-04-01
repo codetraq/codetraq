@@ -55,6 +55,11 @@ public class MessageTracker implements Runnable {
 				}
 				List<MessageDTO> list = _db.getAllUnsentMessages();
 				for (MessageDTO m : list) {
+					if (m.isSent()) {
+						_db.deleteMessage(m);
+						_db.logCheckDelete(m.getServerName(), m.getTimestamp());
+						continue;
+					}
 					if (m.getRecipient().getNotificationType() == ConnectionType.GOOGLE_TALK ||
 						m.getRecipient().getNotificationType() == ConnectionType.JABBER) {
 						boolean status = _xmppTalker.talk(m.getRecipient().getNotificationId(),
@@ -66,6 +71,7 @@ public class MessageTracker implements Runnable {
 							_db.logCheckRetries(m.getServerName(), m.getTimestamp());
 						} else {
 							// delete the message if successfuly sent
+							_db.updateMessageSent(m);
 							LogService.writeMessage("Sending message to " + m.getRecipient().getNotificationId() + " successful");
 							_db.deleteMessage(m);
 							_db.logCheckDelete(m.getServerName(), m.getTimestamp());
@@ -80,6 +86,7 @@ public class MessageTracker implements Runnable {
 							_db.logCheckRetries(m.getServerName(), m.getTimestamp());
 						} else {
 							// delete the message if successfuly sent
+							_db.updateMessageSent(m);
 							LogService.writeMessage("Sending message to " + m.getRecipient().getNotificationId() + " successful");
 							_db.deleteMessage(m);
 							_db.logCheckDelete(m.getServerName(), m.getTimestamp());
@@ -96,6 +103,7 @@ public class MessageTracker implements Runnable {
 							_db.logCheckRetries(m.getServerName(), m.getTimestamp());
 						} else {
 							// delete the message if successfuly sent
+							_db.updateMessageSent(m);
 							LogService.writeMessage("Sending message to " + m.getRecipient().getNotificationId() +
 								" successful.");
 							_db.deleteMessage(m);

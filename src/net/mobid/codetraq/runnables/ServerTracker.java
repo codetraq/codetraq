@@ -9,7 +9,6 @@ package net.mobid.codetraq.runnables;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,27 +16,19 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.mobid.codetraq.VersionControlType;
 import net.mobid.codetraq.persistence.ServerDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.utils.DbUtility;
 import net.mobid.codetraq.utils.LogService;
-import net.mobid.codetraq.utils.Utilities;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.InvalidObjectIdException;
-import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.IndexDiff;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
@@ -233,6 +224,7 @@ public class ServerTracker implements Runnable {
 				List<DiffEntry> changed = df.scan(aTree, bTree);
 				StringBuilder sb = new StringBuilder();
 				for (DiffEntry entry : changed) {
+					sb.delete(0, sb.length());
 					switch (entry.getChangeType()) {
 						case ADD:
 							sb.append("A ").append(entry.getNewPath()).append(cr);

@@ -68,6 +68,13 @@ public class DbUtility {
 		_db.store(found);
 	}
 
+	public void updateMessageSent(MessageDTO value) {
+		ObjectSet result = _db.queryByExample(value);
+		MessageDTO found = (MessageDTO)result.next();
+		found.setSent(true);
+		_db.store(found);
+	}
+
 	public List<MessageDTO> getAllUnsentMessages() {
 		return _db.query(MessageDTO.class);
 	}
@@ -95,7 +102,7 @@ public class DbUtility {
 		if (os.hasNext()) {
 			MessageDTO found = (MessageDTO)os.next();
 			LogService.writeMessage("CHECK retries -> Message for server " +
-				found.getServerName() + " (rev#" + found.getRevisionNumber() + ") has " +
+				found.getServerName() + " (rev#" + found.getRevisionId() + ") has " +
 				found.getRetries() + " retries.");
 		}
 	}
@@ -111,7 +118,7 @@ public class DbUtility {
 		} else {
 			MessageDTO found = (MessageDTO)os.next();
 			LogService.writeMessage("CHECK deleted -> Message for server " +
-				found.getServerName() + " (rev#" + found.getRevisionNumber() + ")" +
+				found.getServerName() + " (rev#" + found.getRevisionId() + ")" +
 				" still in database.");
 		}
 	}

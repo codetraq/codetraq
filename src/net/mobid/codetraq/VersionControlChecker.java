@@ -50,7 +50,7 @@ public abstract class VersionControlChecker {
 		message.setTimestamp(sr.getLastRevisionTimestamp());
 		message.setFiles(sr.getFiles());
 		if (sr.getVersionControlType() == VersionControlType.SVN) {
-			message.setRevisionNumber(sr.getLastRevision());
+			message.setRevisionId(String.valueOf(sr.getLastRevision()));
 			message.setSubject("New revision detected for " + _server.getShortName() +
 				" (" + sr.getLastRevision() + ")");
 		} else if (sr.getVersionControlType() == VersionControlType.GIT) {
