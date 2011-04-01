@@ -79,6 +79,17 @@ public class DbUtility {
 		return _db.query(MessageDTO.class);
 	}
 
+	public void deleteAllSentMessages() {
+		MessageDTO template = new MessageDTO();
+		template.setSent(true);
+		ObjectSet result = _db.queryByExample(template);
+		while(result.hasNext()) {
+			MessageDTO found = (MessageDTO)result.next();
+			deleteMessage(found);
+			logCheckDelete(found.getServerName(), found.getTimestamp());
+		}
+	}
+
 	public void deleteMessage(MessageDTO value) {
 		ObjectSet result = _db.queryByExample(value);
 		while(result.hasNext()) {

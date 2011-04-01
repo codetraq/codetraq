@@ -53,13 +53,9 @@ public class MessageTracker implements Runnable {
 				if (currentThread.isInterrupted()) {
 					throw new InterruptedException("Time to pack up and go home");
 				}
+				_db.deleteAllSentMessages();
 				List<MessageDTO> list = _db.getAllUnsentMessages();
 				for (MessageDTO m : list) {
-					if (m.isSent()) {
-						_db.deleteMessage(m);
-						_db.logCheckDelete(m.getServerName(), m.getTimestamp());
-						continue;
-					}
 					if (m.getRecipient().getNotificationType() == ConnectionType.GOOGLE_TALK ||
 						m.getRecipient().getNotificationType() == ConnectionType.JABBER) {
 						boolean status = _xmppTalker.talk(m.getRecipient().getNotificationId(),
