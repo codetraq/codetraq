@@ -43,9 +43,13 @@ public class SvnChecker extends VersionControlChecker implements Runnable {
 				" in the server revision list.");
 		}
 		if (sr.getVersionControlType() == VersionControlType.SVN) {
-			if (ur.getLastRevision() < sr.getLastRevision()) {
+			// Subversion has a number (integer/long) as a revision id, so we
+			// should just compare those to determine the latest revision...
+			int urRevision = Integer.parseInt(ur.getLastRevisionId());
+			int srRevision = Integer.parseInt(sr.getLastRevisionId());
+			if (urRevision < srRevision) {
 				// we update the UserRevision object...
-				ur.setLastRevision(sr.getLastRevision());
+				ur.setLastRevisionId(sr.getLastRevisionId());
 				_db.updateUserLatestRevision(ur);
 				sendRevisionMessage(sr);
 				return true;

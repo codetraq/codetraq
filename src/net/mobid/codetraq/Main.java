@@ -1,7 +1,20 @@
 /*
- * Main.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This is the entry point for the CodeTraq daemon program.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.mobid.codetraq;
 
@@ -33,6 +46,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
+ * Main.java
+ *
+ * This is the entry point for the CodeTraq daemon program. Setup all necessary
+ * component, then run all the runnables.
  *
  * @author Ronald Kurniawan
  */
@@ -50,6 +67,11 @@ public class Main {
 	private static DbUtility _traqdb = null;
 	private final int USER_UPDATE_IN_MINUTES = 8;
 
+
+	/**
+	 * Read and parse CodeTraq configuration file (ctraq.xml) in current directory.
+	 * @return <code>Document</code> object containing the parsed configuration
+	 */
 	public Document getConfiguration() {
 		if (_configuration == null) {
 			try {
@@ -71,6 +93,10 @@ public class Main {
 		return _configuration;
 	}
 
+	/**
+	 * Returns all the users in the configuration file.
+	 * @return a <code>List</code> containing all the users that will receive notifications.
+	 */
 	public List<UserDTO> getUsers() {
 		if (_users == null) {
 			_users = new ArrayList<UserDTO>();
@@ -78,6 +104,10 @@ public class Main {
 		return _users;
 	}
 
+	/**
+	 * Returns all the servers in the configuration file.
+	 * @return a <code>List</code> containing all the servers that should be monitored.
+	 */
 	public List<ServerDTO> getServers() {
 		if (_servers == null) {
 			_servers = new ArrayList<ServerDTO>();
@@ -89,6 +119,10 @@ public class Main {
 		Main m = new Main();
 	}
 
+	/**
+	 * Constructor for Main class.
+	 * <p>Initialises the application, reads the configuration file and call run().</p>
+	 */
 	public Main() {
 		System.out.printf("CodeTraq daemon v0.1%n");
 		// we need to have a config file. Check for existing one or create a new one...
@@ -115,10 +149,17 @@ public class Main {
 		run();
 	}
 
+	/*
+	 * Creates an empty configuration file.
+	 */
 	private void createConfigFile() {
 		Utilities.createNewConfigFile("ctraq.xml");
 	}
 
+	/*
+	 * Checks whether configuration file exists.
+	 * @return <code>true</code> if configuration file exists, <code>false</code> otherwise.
+	 */
 	private boolean isConfigFileExists() {
 		File cfg = new File("ctraq.xml");
 		if (cfg.exists()) {
@@ -127,6 +168,12 @@ public class Main {
 		return false;
 	}
 
+	/*
+	 * Reads the configuration file and sets up internal variables.
+	 *
+	 * @return <code>true</code> if configuration file has the right syntax,
+	 * <code>false</code> if reader encounters any errors.
+	 */
 	private boolean readConfigFile() {
 		// get codetraq notification id
 		NodeList traqs = getConfiguration().getElementsByTagName("traq");
@@ -315,6 +362,9 @@ public class Main {
 		return true;
 	}
 
+	/**
+	 * Starts all the runnables that monitor the servers and notify the users.
+	 */
 	public final void run() {
 		MessageTracker tracker = new MessageTracker(_traqdb);
 		tracker.setXMPPTalker(_xmppTalker);
@@ -352,6 +402,11 @@ public class Main {
 		}
 	}
 
+	/*
+	 * Search the internal list _users for a User with specified ID.
+	 * @param id - user specified ID
+	 * @return a <code>UserDTO</code> object.
+	 */
 	private UserDTO getUserById(String id) {
 		UserDTO key = new UserDTO();
 		key.setId(id);
@@ -363,6 +418,9 @@ public class Main {
 		return _users.get(x);
 	}
 
+	/*
+	 * Stops the message checker thread. Should only be called during shutdown.
+	 */
 	private synchronized void messageTrackerStop() {
 		Thread tmpChecker = _messageChecker;
 		_messageChecker = null;
@@ -371,6 +429,9 @@ public class Main {
 		}
 	}
 
+	/*
+	 * Stops the server tracker thread. Should only be called during shutdown.
+	 */
 	private synchronized void serverTrackerStop() {
 		Thread tmpChecker = _serverChecker;
 		_serverChecker = null;
@@ -379,6 +440,11 @@ public class Main {
 		}
 	}
 
+	/*
+	 * ShutdownHook class is a class that is responsible for "cleaning up" during
+	 * shutdown process. It stops every running thread and cleans up internal variables.
+	 *
+	 */
 	class ShutdownHook extends Thread {
 		// we run "cleaning process" here
 

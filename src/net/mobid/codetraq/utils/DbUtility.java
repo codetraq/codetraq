@@ -11,7 +11,6 @@ import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 import java.util.ArrayList;
 import java.util.List;
-import net.mobid.codetraq.VersionControlType;
 import net.mobid.codetraq.persistence.MessageDTO;
 import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserRevision;
@@ -200,7 +199,7 @@ public class DbUtility {
 		ObjectSet result = _userRevDb.queryByExample(r);
 		if (result.hasNext()) {
 			UserRevision found = (UserRevision)result.next();
-			found.setLastRevision(ur.getLastRevision());
+			found.setLastRevisionId(ur.getLastRevisionId());
 			_userRevDb.store(found);
 		}
 	}
@@ -259,20 +258,16 @@ public class DbUtility {
 		if (result.hasNext()) {
 			ServerRevision found = (ServerRevision)result.next();
 			LogService.writeMessage("CHECK_BEFORE_SR_UPDATE: rev " + 
-				(found.getVersionControlType() == VersionControlType.GIT ? found.getLastRevisionId() : found.getLastRevision()));
+				found.getLastRevisionId());
 			found.setLastCheckedTimestamp(sr.getLastCheckedTimestamp());
 			found.setLastMessage(sr.getLastMessage());
 			found.setLastAuthor(sr.getLastAuthor());
 			found.setLastCommitter(sr.getLastCommitter());
 			found.setLastRevisionTimestamp(sr.getLastRevisionTimestamp());
-			if (found.getVersionControlType() == VersionControlType.SVN) {
-				found.setLastRevision(sr.getLastRevision());
-			} else if (found.getVersionControlType() == VersionControlType.GIT) {
-				found.setLastRevisionId(sr.getLastRevisionId());
-			}
+			found.setLastRevisionId(sr.getLastRevisionId());
 			_serverRevDb.store(found);
 			LogService.writeMessage("CHECK_AFTER_SR_UPDATE: rev " + 
-				(found.getVersionControlType() == VersionControlType.GIT ? found.getLastRevisionId() : found.getLastRevision()));
+				found.getLastRevisionId());
 		}
 	}
 

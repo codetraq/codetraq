@@ -101,7 +101,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 	private void pull(String path) {
 		LogService.writeMessage("GitChecker is trying to do a pull from " +
 			_server.getServerAddress());
-		System.out.printf("GitChecker is trying to do a pull from %s%n", _server.getServerAddress());
+		//System.out.printf("GitChecker is trying to do a pull from %s%n", _server.getServerAddress());
 		try {
 			File gitDir = new File(path);
 			repo = new FileRepository(gitDir);
@@ -123,7 +123,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 				if (result.getTrackingRefUpdates().isEmpty()) {
 					return;
 				}
-				showFetchResult(result);
+				showFetchResult(result, true);
 			} else {
 				LogService.writeMessage("GitChecker did not find anything to pull from " +
 					_server.getServerAddress());
@@ -197,7 +197,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
-	protected void showFetchResult(final FetchResult r) {
+	protected void showFetchResult(final FetchResult r, boolean logOnly) {
 		ObjectReader reader = repo.newObjectReader();
 		PrintWriter out = new PrintWriter(System.out);
 		try {
@@ -216,8 +216,11 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 					shownURI = true;
 				}
 
-				out.format(" %c %-17s %-10s -> %s", type, longType, src, dst);
-				out.println();
+				if (!logOnly) {
+					out.format(" %c %-17s %-10s -> %s", type, longType, src, dst);
+					out.println();
+				}
+
 			}
 		} finally {
 			reader.release();

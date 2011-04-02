@@ -1,9 +1,21 @@
 /*
- * ServerRevision.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * Records the latest revision number for a server.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package net.mobid.codetraq.persistence;
 
 import java.util.ArrayList;
@@ -12,47 +24,84 @@ import net.mobid.codetraq.VersionControlType;
 import org.joda.time.Period;
 
 /**
+ * ServerRevision.java
  *
- * @author viper
+ * Records the latest revision number for a server.
+ * @author Ronald Kurniawan
  */
 public class ServerRevision {
 
 	private boolean _shouldUpdate = false;
 
+	/**
+	 * Returns the status of whether daemon should update this revision on its next
+	 * run.
+	 * @return <code>true</code> if daemon should update this revision, <code>false</code>
+	 * otherwise
+	 */
 	public boolean shoudlUpdate() {
 		return _shouldUpdate;
 	}
 
-	private VersionControlType _versionControl = null;
-
-	public VersionControlType getVersionControlType() {
-		return _versionControl;
-	}
-
-	public void setVersionControlType(VersionControlType value) {
-		_versionControl = value;
-	}
-
+	/**
+	 * Sets the status of whether daemon should update this revision on its next run.
+	 * @param value - <code>true</code> if daemon should update, <code>false</code> otherwise
+	 */
 	public void setShouldUpdate(boolean value) {
 		_shouldUpdate = value;
 	}
 
+	private VersionControlType _versionControl = null;
+
+	/**
+	 * Returns the type of Version Control this revision uses.
+	 * @return a value of the type <code>VersionControlType</code>
+	 */
+	public VersionControlType getVersionControlType() {
+		return _versionControl;
+	}
+
+	/**
+	 * Sets the type of Version Control this revision uses.
+	 * @param value - type <code>VersionControlType</code>
+	 */
+	public void setVersionControlType(VersionControlType value) {
+		_versionControl = value;
+	}
+
 	private String _serverShortName = null;
 
+	/**
+	 * Returns the server's short name (nickname).
+	 * @return server's short name
+	 */
 	public String getServerShortName() {
 		return _serverShortName;
 	}
 
+	/**
+	 * Sets the server's short name (nickname). This nickname must be unique
+	 * throughout the configuration file.
+	 * @param value - server's short name
+	 */
 	public void setServerShortName(String value) {
 		_serverShortName = value;
 	}
 
 	private String _serverAddress = null;
 
+	/**
+	 * Returns the URL for the server to be monitored.
+	 * @return server URL
+	 */
 	public String getServerAddress() {
 		return _serverAddress;
 	}
 
+	/**
+	 * Sets the URL for the server to be monitored.
+	 * @param value - server URL
+	 */
 	public void setServerAddress(String value) {
 		if (_serverAddress != null) {
 			System.out.printf("Server addres cannot be changed.%n");
@@ -63,34 +112,62 @@ public class ServerRevision {
 
 	private String _serverUsername = null;
 
+	/**
+	 * Returns the username to be used to log into the version control.
+	 * @return username for login
+	 */
 	public String getServerUsername() {
 		return _serverUsername;
 	}
 
+	/**
+	 * Sets the username to be used to log into the version control.
+	 * @param value - username for login
+	 */
 	public void setServerUsername(String value) {
 		_serverUsername = value;
 	}
 
 	private String _serverPassword = null;
 
+	/**
+	 * Returns the password to be used to log into the version control.
+	 * @return password for login
+	 */
 	public String getServerPassword() {
 		return _serverPassword;
 	}
 
+	/**
+	 * Sets the password to be used to log into the version control.
+	 * @param value - password for login
+	 */
 	public void setServerPassword(String value) {
 		_serverPassword = value;
 	}
 
 	public long _lastCheckedTimestamp = 0;
 
+	/**
+	 * Returns the timestamp the server was last monitored.
+	 * @return timestamp in miliseconds since epoch
+	 */
 	public long getLastCheckedTimestamp() {
 		return _lastCheckedTimestamp;
 	}
 
+	/**
+	 * Sets the timestamp the server was last monitored.
+	 * @param value - timestamp in miliseconds since epoch
+	 */
 	public void setLastCheckedTimestamp(long value) {
 		_lastCheckedTimestamp = value;
 	}
 
+	/**
+	 * Calculates and returns the number of minutes since last monitor.
+	 * @return number of minutes elapsed since last monitor
+	 */
 	public int getMinutesSinceLastCheck() {
 		if (getLastCheckedTimestamp() > 0)  {
 			Period p = new Period(getLastCheckedTimestamp(), System.currentTimeMillis());
@@ -103,22 +180,20 @@ public class ServerRevision {
 	// Needed to construct a Message
 	private String _rLastMessage = null;
 
+	/**
+	 * Returns message for last revision.
+	 * @return last revision's message
+	 */
 	public String getLastMessage() {
 		return _rLastMessage;
 	}
 
+	/**
+	 * Sets message for last revision.
+	 * @param value - last revision's message
+	 */
 	public void setLastMessage(String value) {
 		_rLastMessage = value;
-	}
-
-	private long _rLastRevision = -1;
-
-	public long getLastRevision() {
-		return _rLastRevision;
-	}
-
-	public void setLastRevision(long value) {
-		_rLastRevision = value;
 	}
 
 	private String _rLastRevisionId = null;

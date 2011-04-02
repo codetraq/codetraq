@@ -71,14 +71,15 @@ public class ServerTracker implements Runnable {
 					if (sr.shoudlUpdate() && sr.getMinutesSinceLastCheck() >= UPDATE_IN_MINUTES) {
 						if (sr.getVersionControlType() == VersionControlType.SVN) {
 							SVNLogEntry latestLogEntry = getSvnLatestRevisionHistory(sr);
-							if (latestLogEntry != null && latestLogEntry.getRevision() > sr.getLastRevision()) {
+							int srLastRevision = Integer.parseInt(sr.getLastRevisionId());
+							if (latestLogEntry != null && latestLogEntry.getRevision() > srLastRevision) {
 								LogService.writeMessage("Found latest revision for "
 										+ sr.getServerAddress() + " with timestamp "
 										+ latestLogEntry.getDate().getTime());
 								sr.setLastCheckedTimestamp(System.currentTimeMillis());
 								// revision-related changes
 								sr.setLastMessage(latestLogEntry.getMessage());
-								sr.setLastRevision(latestLogEntry.getRevision());
+								sr.setLastRevisionId(String.valueOf(latestLogEntry.getRevision()));
 								sr.setLastAuthor(latestLogEntry.getAuthor());
 								sr.setLastCommitter(latestLogEntry.getAuthor());
 								sr.setLastRevisionTimestamp(latestLogEntry.getDate().getTime());
