@@ -1,8 +1,20 @@
 /*
- * SvnChecker.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This class serves as a worker class that checks for changes on a given
- * subversion server.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.mobid.codetraq.runnables;
 
@@ -17,8 +29,11 @@ import net.mobid.codetraq.utils.DbUtility;
 import net.mobid.codetraq.utils.LogService;
 
 /**
+ * SvnChecker.java
  *
- * @author viper
+ * This class serves as a worker class that monitor for changes on a given
+ * subversion server.
+ * @author Ronald Kurniawan
  */
 public class SvnChecker extends VersionControlChecker implements Runnable {
 

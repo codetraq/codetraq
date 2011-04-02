@@ -198,46 +198,82 @@ public class ServerRevision {
 
 	private String _rLastRevisionId = null;
 
+	/**
+	 * Returns ID for last revision.
+	 * @return last revision's ID
+	 */
 	public String getLastRevisionId() {
 		return _rLastRevisionId;
 	}
 
+	/**
+	 * Sets the ID for last revision.
+	 * @param value - last revision's ID
+	 */
 	public void setLastRevisionId(String value) {
 		_rLastRevisionId = value;
 	}
 
 	private long _rLastTimestamp = 0;
 
+	/**
+	 * Returns the timestamp for last revision.
+	 * @return last revision's timestamp
+	 */
 	public long getLastRevisionTimestamp() {
 		return _rLastTimestamp;
 	}
 
+	/**
+	 * Sets the timestamp for last revision.
+	 * @param value - last revision's timestamp
+	 */
 	public void setLastRevisionTimestamp(long value) {
 		_rLastTimestamp = value;
 	}
 
 	private String _rLastAuthor = null;
 
+	/**
+	 * Returns the author for last revision.
+	 * @return last revision's author
+	 */
 	public String getLastAuthor() {
 		return _rLastAuthor;
 	}
 
+	/**
+	 * Sets the author for last revision.
+	 * @param value - last revision's author
+	 */
 	public void setLastAuthor(String value) {
 		_rLastAuthor = value;
 	}
 
 	private String _rLastCommitter = null;
 
+	/**
+	 * Returns the committer for last revision.
+	 * @return last revision's committer
+	 */
 	public String getLastCommitter() {
 		return _rLastCommitter;
 	}
 
+	/**
+	 * Sets the committer for last revision.
+	 * @param value - last revision's committer
+	 */
 	public void setLastCommitter(String value) {
 		_rLastCommitter = value;
 	}
 
 	private List<String> _files = null;
 
+	/**
+	 * Returns the list of modified files for last revision.
+	 * @return a <code>List</code> containing modified files from last revision
+	 */
 	public List<String> getFiles() {
 		if (_files == null) {
 			_files = new ArrayList<String>();
@@ -245,6 +281,10 @@ public class ServerRevision {
 		return _files;
 	}
 
+	/**
+	 * Adds a single line describing a modified file into the list of modified files.
+	 * @param value - a <code>String</code> describiing a modified file (status and path)
+	 */
 	public void addModifiedFile(String value) {
 		if (_files == null) {
 			_files = new ArrayList<String>();
@@ -252,6 +292,9 @@ public class ServerRevision {
 		_files.add(value);
 	}
 
+	/**
+	 * Clears the content of the list of modified files.
+	 */
 	public void clearFiles() {
 		if (_files != null && !_files.isEmpty()) {
 			_files.clear();

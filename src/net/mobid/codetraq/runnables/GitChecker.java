@@ -1,7 +1,20 @@
 /*
- * GitChecker.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This is a worker class whose purpose is to check changes on a git server.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.mobid.codetraq.runnables;
 
@@ -37,8 +50,10 @@ import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
 
 /**
+ * GitChecker.java
  *
- * @author viper
+ * This is a worker class whose purpose is to monitor changes on a given git server.
+ * @author Ronald Kurniawan
  */
 public class GitChecker extends VersionControlChecker implements Runnable {
 
@@ -46,10 +61,20 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 
 	private Git mGit = null;
 
+	/**
+	 * Creates a new GitChecker.
+	 * @param server - a <code>ServerDTO</code> instance
+	 * @param user - a <code>UserDTO</code> instance
+	 * @param db - a <code>DbUtility</code> instance
+	 */
 	public GitChecker(ServerDTO server, UserDTO user, DbUtility db) {
 		super(server, user, db);
 	}
 
+	/**
+	 * Checks the git repository directory, clone a project if local repository
+	 * does not exist, otherwise do a pull to update to latest repository.
+	 */
 	public void run() {
 		// we need to make sure that a project repository dir can be created or
 		// already exists
@@ -75,6 +100,14 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
+	/**
+	 * Checks if user already has the latest revision on records. If user's version of the revision
+	 * is older than the version the server monitor has, we update the user's revision and send
+	 * a new message to user.
+	 * @return <code>true</code> if user already has latest revision, <code>false</code>
+	 * otherwise
+	 * @throws Exception
+	 */
 	@Override
 	public boolean compareLatestRevisionHistory() throws Exception {
 		checkServerInUserRecord();
@@ -98,6 +131,10 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		return false;
 	}
 
+	/*
+	 * Does a pull from a GIT repository.
+	 * @param path - path to local repository
+	 */
 	private void pull(String path) {
 		LogService.writeMessage("GitChecker is trying to do a pull from " +
 			_server.getServerAddress());
@@ -134,6 +171,10 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
+	/*
+	 * Clones a GIT repository.
+	 * @param path - path to local repository
+	 */
 	private void clone(String path) {
 		LogService.writeMessage("GitChecker is trying to do a clone from " +
 			_server.getServerAddress());
@@ -169,6 +210,12 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
+	/*
+	 * Checks whether master branch is defined in local repository's configuration.
+	 * @param r - a GIT repository
+	 * @return <code>true</code> if master branch is defined, <code>false</code>
+	 * otherwise
+	 */
 	private boolean isMasterBranchDefined(Repository r) {
 		if (r.getConfig().getString(ConfigConstants.CONFIG_BRANCH_SECTION,
 			_server.getServerBranch(), ConfigConstants.CONFIG_KEY_REMOTE) == null) {
@@ -177,6 +224,11 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		return true;
 	}
 
+	/*
+	 * Attaches a "detached" HEAD on a local GIT repository.
+	 * @param g - a <code>Git</code> object
+	 * @param branch - branch name
+	 */
 	private void attachHead(Git g, String branch) {
 		LogService.writeMessage("Trying to attach HEAD to " + g.getRepository().toString());
 		try {
@@ -197,7 +249,13 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
-	protected void showFetchResult(final FetchResult r, boolean logOnly) {
+	/*
+	 * Shows the result of a fetch command to a Git repository. This command is borrowed
+	 * from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our need.
+	 * @param r - <code>FetchResult</code> object
+	 * @param logOnly - if <code>true</code> then we should not see the result on console
+	 */
+	private void showFetchResult(final FetchResult r, boolean logOnly) {
 		ObjectReader reader = repo.newObjectReader();
 		PrintWriter out = new PrintWriter(System.out);
 		try {
@@ -228,6 +286,12 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		showRemoteMessages(r.getMessages());
 	}
 
+	/*
+	 * Shows the message received from remote GIT server. This command is borrowed
+	 * from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our
+	 * need.
+	 * @param pkt - messages received from remote server
+	 */
 	static void showRemoteMessages(String pkt) {
 		PrintWriter writer = new PrintWriter(System.err);
 		while (0 < pkt.length()) {
@@ -259,6 +323,13 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		writer.flush();
 	}
 
+	/*
+	 * Analyses the <code>TrackingRefUpdate</code> in a local repository. This command is borrowed
+	 * from org.eclipse.jgit.pgm.AbstractFetchCommand.
+	 * @param reader - <code>ObjectReader</code> object
+	 * @param u - <code>TrackingRefUpdate</code> object
+	 * @return <code>String</code>result of the analysis
+	 */
 	private String longTypeOf(ObjectReader reader, final TrackingRefUpdate u) {
 		final RefUpdate.Result r = u.getResult();
 		if (r == RefUpdate.Result.LOCK_FAILURE)
@@ -295,6 +366,13 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		return "[" + r.name() + "]";
 	}
 
+	/*
+	 * Returns the safe abbreviation of an <code>ObjectId</code>. This command is borrowed
+	 * from org.eclipse.jgit.pgm.AbstractFetchCommand.
+	 * @param reader - <code>ObjectReader</code> object
+	 * @param id - <code>ObjectId</code> object
+	 * @return a save abbreviation of an ObjectId
+	 */
 	private String safeAbbreviate(ObjectReader reader, ObjectId id) {
 		try {
 			return reader.abbreviate(id).name();
@@ -303,6 +381,12 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param dst
+	 * @param abbreviateRemote
+	 * @return
+	 */
 	String abbreviateRef(String dst, boolean abbreviateRemote) {
 		if (dst.startsWith(Constants.R_HEADS))
 			dst = dst.substring(Constants.R_HEADS.length());
