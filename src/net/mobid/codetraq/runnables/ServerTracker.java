@@ -56,7 +56,9 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
  * ServerTracker.java
  *
  * This is a worker class that tracks and updates the revision history of a
- * server. Set an update time that is convenient for your own circumnstance.
+ * server. As you might have guessed, this class works by polling the respective
+ * repository servers after UPDATE_IN_MINUTES elapsed. You should set an update time
+ * that is convenient for your own circumnstances.
  * @author Ronald Kurniawan
  */
 public class ServerTracker implements Runnable {
@@ -64,11 +66,20 @@ public class ServerTracker implements Runnable {
 	private final int UPDATE_IN_MINUTES = 8;
 	private DbUtility _db = null;
 
+	/**
+	 * Creates a new instance of <code>ServerTracker</code>.
+	 * @param db - an instance of <code>DbUtility</code>
+	 * @param servers - a <code>List</code> of <code>ServerDTO</code> objects
+	 */
 	public ServerTracker(DbUtility db, List<ServerDTO> servers) {
 		_db = db;
 		setupServers(servers);
 	}
 
+	/**
+	 * Compares the latest revision found in each server, and stores the newer revision
+	 * data into the database.
+	 */
 	public void run() {
 		Thread currentThread = Thread.currentThread();
 		try {
@@ -147,6 +158,10 @@ public class ServerTracker implements Runnable {
 		}
 	}
 
+	/*
+	 * Turns the update flag on only for servers that are listed in the configuration files.
+	 * @param servers - a <code>List</code> of <code>ServerDTO</code> objects
+	 */
 	private void setupServers(List<ServerDTO> servers) {
 		_db.turnAllServerUpdateOff();
 		// now we need to turn ServerRevision.shouldUpdate to true for every server on the list
@@ -170,6 +185,11 @@ public class ServerTracker implements Runnable {
 		}
 	}
 
+	/*
+	 * Fetches the latest revision data from a Subversion server.
+	 * @param server - a <code>ServerRevision</code> object
+	 * @return a <code>SVNLogEntry</code> object containing the latest revision data
+	 */
 	private SVNLogEntry getSvnLatestRevisionHistory(ServerRevision server) {
 		// check server protocol
 		if (!server.getServerAddress().startsWith("http://")
@@ -212,6 +232,11 @@ public class ServerTracker implements Runnable {
 		return null;
 	}
 
+	/*
+	 * Fetches the latest revision data from a GIT repository.
+	 * @param sr - a <code>ServerRevision</code> object
+	 * @return a <code>RevCommit</code> object containing the latest revision data
+	 */
 	private RevCommit getGitLatestRevisionHistory(ServerRevision sr) {
 		try {
 			File gitPath = new File("gitrepos/" + sr.getServerShortName() + "/.git");
@@ -225,6 +250,12 @@ public class ServerTracker implements Runnable {
 		return null;
 	}
 
+	/*
+	 * Returns a list of modified files along with their modification status, from
+	 * a GIT repository.
+	 * @param sr - a <code>ServerRevision</code> object
+	 * @return a <code>List</code> of modified files
+	 */
 	private List<String> getChangedFiles(ServerRevision sr) {
 		List<String> modifiedFiles = new ArrayList<String>();
 		try {
@@ -270,6 +301,13 @@ public class ServerTracker implements Runnable {
 		return modifiedFiles;
 	}
 
+	/*
+	 * Returns the latest n commit(s) from the local GIT repository of a specified
+	 * project. This is normally called after we update the local repository first.
+	 * @param howManyCommits - the number of commits we wish to pull
+	 * @param repo - a <code>Repository</code> object
+	 * @return an array of <code>RevCommit</code> objects
+	 */
 	private RevCommit[] getCommits(int howManyCommits, Repository repo) {
 		if (howManyCommits == 0) {
 			return null;

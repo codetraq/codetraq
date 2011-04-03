@@ -37,6 +37,12 @@ import net.mobid.codetraq.utils.LogService;
  */
 public class SvnChecker extends VersionControlChecker implements Runnable {
 
+	/**
+	 * Creates a new SvnChecker.
+	 * @param server - a <code>ServerDTO</code> object
+	 * @param user - a <code>UserDTO</code> object
+	 * @param db - an instance of <code>DbUtility</code>
+	 */
 	public SvnChecker(ServerDTO server, UserDTO user, DbUtility db) {
 		super(server, user, db);
 	}
@@ -73,6 +79,9 @@ public class SvnChecker extends VersionControlChecker implements Runnable {
 		return false;
 	}
 
+	/**
+	 * Calls compareLatestRevisionHistory().
+	 */
 	public void run() {
 		try {
 			compareLatestRevisionHistory();

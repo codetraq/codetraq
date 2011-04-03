@@ -1,10 +1,21 @@
 /*
- * XMPPTalker.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This class implements the CodeTraq connector to XMPP-based instant messaging
- * service.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package net.mobid.codetraq.talkers;
 
 import java.util.logging.Level;
@@ -23,8 +34,12 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 
 /**
+ * XMPPTalker.java
  *
- * @author viper
+ * This class implements the CodeTraq connector to XMPP-based instant messaging
+ * service. Currently, this class works perfectly well for GoogleTalk and Jabber.org
+ * clients.
+ * @author Ronald Kurniawan
  */
 public class XMPPTalker implements ITalker {
 
@@ -35,6 +50,16 @@ public class XMPPTalker implements ITalker {
 	private Roster _roster = null;
 	private boolean _connected = false;
 
+	/**
+	 * Creates a new XMPPTalker. You should provide the password as
+	 * an encrypted <code>String</code> inside the configuration file. See
+	 * <code>PasswordProcessor.java</code> for more information on how we encrypt
+	 * or decrypt text. <b>DO NOT</b> store plaintext passwords in your configuration
+	 * file.
+	 * @param username - GoogleTalk / Jabber.org username
+	 * @param password - GoogleTalk / Jabber.org password
+	 * @param connection
+	 */
 	public XMPPTalker(String username, String password, ConnectionType connection) {
 		_username = username;
 		_password = password;
@@ -52,14 +77,26 @@ public class XMPPTalker implements ITalker {
 		}
 	}
 
+	/**
+	 * Checks whether our service is online and ready to send messages.
+	 * @return <code>true</code> if online, <code>false</code> otherwise
+	 */
 	public boolean isConnected() {
 		return _connected;
 	}
 
+	/**
+	 * Sets our online status.
+	 * @param value - <code>true</code> if online, <code>false</code> otherwise
+	 */
 	public void setConnected(boolean value) {
 		_connected = value;
 	}
 
+	/**
+	 * Logs into our XMPP-based service provider. This method has been tested against
+	 * GoogleTalk and Jabber.org.
+	 */
 	public final void connect() {
 		if (_conn != null && !_conn.isConnected()) {
 			try {

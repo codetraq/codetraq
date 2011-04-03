@@ -1,8 +1,20 @@
 /*
- * MSNTalker.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This is the implementation of ITalker interface for MSN Protocol.
- * We are using JML for implementation.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.mobid.codetraq.talkers;
 
@@ -27,8 +39,11 @@ import net.sf.jml.event.MsnSwitchboardAdapter;
 import net.sf.jml.impl.MsnMessengerFactory;
 
 /**
+ * MSNTalker.java
  *
- * @author viper
+ * This is the implementation of ITalker interface for MSN Protocol.
+ * We are using JML for implementation.
+ * @author Ronald Kurniawan
  */
 public class MSNTalker implements ITalker {
 
@@ -40,6 +55,16 @@ public class MSNTalker implements ITalker {
 	private final Object swid = "CODETRAQ";
 	private boolean _switchboardOn = false;
 
+	/**
+	 * Creates a new MSNTalker. You should provide the password as
+	 * an encrypted <code>String</code> inside the configuration file. See
+	 * <code>PasswordProcessor.java</code> for more information on how we encrypt
+	 * or decrypt text. <b>DO NOT</b> store plaintext passwords in your configuration
+	 * file.
+	 * @param username - User's MSN username
+	 * @param password - User's MSN password
+	 * @param cType - a <code>ConnectionType</code> object
+	 */
 	public MSNTalker(String username, String password, ConnectionType cType) {
 		_username = username;
 		_password = password;
@@ -49,10 +74,17 @@ public class MSNTalker implements ITalker {
 		connect();
 	}
 
+	/**
+	 * Returns the list of users that has not been approved into our contact list.
+	 * @return a <code>List</code> of pending contacts
+	 */
 	public List<String> getPendingCheckUser() {
 		return _pendingCheckUser;
 	}
 
+	/**
+	 * Logs into MSN.
+	 */
 	public final void connect() {
 		if (_messenger != null) {
 			_messenger.login();
@@ -61,6 +93,12 @@ public class MSNTalker implements ITalker {
 		}
 	}
 
+	/**
+	 * Sends a message to a contact.
+	 * @param recipientAddress - recipient's MSN username
+	 * @param message - message to send
+	 * @return <code>true</code> if message is sent successfully, <code>false</code> otherwise
+	 */
 	public boolean talk(String recipientAddress, String message) {
 		if (_messenger != null && _switchboardOn) {
 			MsnContact c = _messenger.getContactList().getContactByEmail(Email.parseStr(recipientAddress));
@@ -72,12 +110,20 @@ public class MSNTalker implements ITalker {
 		return false;
 	}
 
+	/**
+	 * Logs out from MSN.
+	 */
 	public void disconnect() {
 		if (_messenger != null) {
 			_messenger.logout();
 		}
 	}
 
+	/**
+	 * Checks whether a contact is in our contact list.
+	 * @param recipientAddress - contact's MSN username
+	 * @return <code>true</code> if contact is in our list, <code>false</code> otherwise
+	 */
 	public boolean isInContactList(String recipientAddress) {
 		if (_messenger != null) {
 			MsnContactList contactList = _messenger.getContactList();
@@ -89,12 +135,21 @@ public class MSNTalker implements ITalker {
 		return false;
 	}
 
+	/**
+	 * Adds a user into our contact list.
+	 * @param recipientAddress - contact's MSN username
+	 */
 	public void addToContactList(String recipientAddress) {
 		if (_messenger != null) {
 			_messenger.addFriend(Email.parseStr(recipientAddress), recipientAddress);
 		}
 	}
 
+	/**
+	 * Checks whether a contact is online and ready to receive messages.
+	 * @param recipientAddress - contact's MSN username
+	 * @return <code>true</code> if contact is online, <code>false</code> otherwise
+	 */
 	public boolean recipientOnline(String recipientAddress) {
 		if (_messenger != null) {
 			MsnContactList contactList = _messenger.getContactList();
@@ -108,6 +163,9 @@ public class MSNTalker implements ITalker {
 		return false;
 	}
 
+	/*
+	 * Clears the pending contact list.
+	 */
 	private void clearPendingCheckUserList() {
 		if (_pendingCheckUser != null && !_pendingCheckUser.isEmpty()) {
 			Iterator it = _pendingCheckUser.iterator();
@@ -121,6 +179,11 @@ public class MSNTalker implements ITalker {
 		}
 	}
 
+	/*
+	 * Initialises our MSN object. As a rule we need to add "listeners" to MSN object,
+	 * and try to catch every possible situations. Without these "listeners", the
+	 * MSN object will not work correctly.
+	 */
 	private void initMessenger() {
 		if (_messenger != null) {
 			_messenger.addMessengerListener(new MsnMessengerAdapter() {

@@ -30,7 +30,10 @@ import net.mobid.codetraq.utils.LogService;
  * MessageTracker.java
  *
  * This class tracks the message database and sends (or try to send) any message
- * left in the database.
+ * left in the database. The daemon will always try to delete a message after it
+ * succesfully being sent. You should set the Message Round (the number of minutes
+ * between sending message process) to a number that is suitable for your own
+ * circumstances.
  * @author Ronald Kurniawan
  */
 public class MessageTracker implements Runnable {
@@ -43,22 +46,48 @@ public class MessageTracker implements Runnable {
 
 	private DbUtility _db = null;
 
+	private final int MESSAGE_ROUND = 3;
+
+	/**
+	 * Creates a new MessageTracker.
+	 * @param db - a <code>DbUtility</code> instance
+	 */
 	public MessageTracker(DbUtility db) {
 		_db = db;
 	}
 
+	/**
+	 * Sets an instance of <code>XMPPTalker</code> for this <code>MessageTracker</code>.
+	 * XMPP is the protocol to use if you wish to send messages via Google Talk or Jabber.
+	 * @param value - a <code>XMPPTalker</code> instance
+	 */
 	public void setXMPPTalker(ITalker value) {
 		_xmppTalker = value;
 	}
 
+	/**
+	 * Sets an instance of <code>MSNTalker</code> for this <code>MessageTracker</code>.
+	 * MSN is the protocol to use if you wish to send messages via MSN.
+	 * @param value - a <code>MSNTalker</code> instance
+	 */
 	public void setMSNTalker(ITalker value) {
 		_msnTalker = value;
 	}
 
+	/**
+	 * Sets an instance of <code>EmailTalker</code> for this <code>MessageTracker</code>.
+	 * Use this if you wish to send messages via email.
+	 * @param value
+	 */
 	public void setEmailTalker(ITalker value) {
 		_mailTalker = value;
 	}
 
+	/**
+	 * Monitors the message database and tries to send any unsent messages. Messages will
+	 * be deleted after successfully sent. If a message is unsent, it will be left in the
+	 * database for another try in the next round.
+	 */
 	public void run() {
 		Thread currentThread = Thread.currentThread();
 		try {
@@ -121,7 +150,7 @@ public class MessageTracker implements Runnable {
 						}
 					}
 				}
-				Thread.sleep(3* 60 * 1000);
+				Thread.sleep(MESSAGE_ROUND * 60 * 1000);
 			}
 		} catch (InterruptedException ex) {
 			LogService.writeMessage("MessageTracker interrupted");

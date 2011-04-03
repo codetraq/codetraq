@@ -1,9 +1,21 @@
 /*
- * PasswordProcessor.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * Encrypt and decrypt passwords.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package net.mobid.codetraq.utils;
 
 import java.util.logging.Level;
@@ -18,8 +30,14 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.codec.binary.Base64;
 
 /**
+ * PasswordProcessor.java
  *
- * @author viper
+ * Encrypt and decrypt passwords. These functions are used heavily in connection
+ * with configuration file processing. <b>NOTE:</b> You should definitely change
+ * the <code>passPhrase</code> value and then recompile this project before using
+ * it in your own server. This would make it difficult for any unauthorised person
+ * to guess the passwords stored in your configuration files.
+ * @author Ronald Kurniawan
  */
 public class PasswordProcessor {
 
@@ -33,6 +51,13 @@ public class PasswordProcessor {
 
 	private static final int iterations = 32;
 
+	/**
+	 * Encrypts a text using the <code>passPhrase</code> above and an algorithm supported
+	 * by your virtual machine implementation. You can change the default algorithm with
+	 * another algorithm, but please make sure your virtual machine supports it.
+	 * @param valueToEncrypt - text to encrypt
+	 * @return an encrypted, Base64 encoded text
+	 */
 	public static String encryptString(String valueToEncrypt) {
 		String output = null;
 		try {
@@ -51,6 +76,13 @@ public class PasswordProcessor {
 		return output;
 	}
 
+	/**
+	 * Decrypts a text using the <code>passPhrase</code> above and an algorithm supported
+	 * by your virtual machine implementation. You can change the default algorithm with
+	 * another algorithm, but please make sure your virtual machine supports it.
+	 * @param valueToDecrypt - text to decrypt
+	 * @return a plain text
+	 */
 	public static String decryptString(String valueToDecrypt) {
 		String output = null;
 		try {

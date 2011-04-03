@@ -250,10 +250,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 	}
 
 	/*
-	 * Shows the result of a fetch command to a Git repository. This command is borrowed
-	 * from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our need.
-	 * @param r - <code>FetchResult</code> object
-	 * @param logOnly - if <code>true</code> then we should not see the result on console
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our need.
 	 */
 	private void showFetchResult(final FetchResult r, boolean logOnly) {
 		ObjectReader reader = repo.newObjectReader();
@@ -287,10 +284,8 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 	}
 
 	/*
-	 * Shows the message received from remote GIT server. This command is borrowed
-	 * from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand and modified to suit our
 	 * need.
-	 * @param pkt - messages received from remote server
 	 */
 	static void showRemoteMessages(String pkt) {
 		PrintWriter writer = new PrintWriter(System.err);
@@ -324,11 +319,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 	}
 
 	/*
-	 * Analyses the <code>TrackingRefUpdate</code> in a local repository. This command is borrowed
-	 * from org.eclipse.jgit.pgm.AbstractFetchCommand.
-	 * @param reader - <code>ObjectReader</code> object
-	 * @param u - <code>TrackingRefUpdate</code> object
-	 * @return <code>String</code>result of the analysis
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand.
 	 */
 	private String longTypeOf(ObjectReader reader, final TrackingRefUpdate u) {
 		final RefUpdate.Result r = u.getResult();
@@ -367,11 +358,7 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 	}
 
 	/*
-	 * Returns the safe abbreviation of an <code>ObjectId</code>. This command is borrowed
-	 * from org.eclipse.jgit.pgm.AbstractFetchCommand.
-	 * @param reader - <code>ObjectReader</code> object
-	 * @param id - <code>ObjectId</code> object
-	 * @return a save abbreviation of an ObjectId
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand.
 	 */
 	private String safeAbbreviate(ObjectReader reader, ObjectId id) {
 		try {
@@ -381,11 +368,8 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		}
 	}
 
-	/**
-	 * 
-	 * @param dst
-	 * @param abbreviateRemote
-	 * @return
+	/*
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand.
 	 */
 	String abbreviateRef(String dst, boolean abbreviateRemote) {
 		if (dst.startsWith(Constants.R_HEADS))
@@ -397,6 +381,9 @@ public class GitChecker extends VersionControlChecker implements Runnable {
 		return dst;
 	}
 
+	/*
+	 * This method is borrowed from org.eclipse.jgit.pgm.AbstractFetchCommand.
+	 */
 	private static char shortTypeOf(final RefUpdate.Result r) {
 		if (r == RefUpdate.Result.LOCK_FAILURE)
 			return '!';

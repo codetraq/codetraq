@@ -1,9 +1,21 @@
 /*
- * DbUtility.java
+ * Copyright 2011 Ronald Kurniawan.
  *
- * This class deals with CRUD operation with db4o.
+ * This file is part of CodeTraq.
+ *
+ * CodeTraq is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CodeTraq is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CodeTraq. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package net.mobid.codetraq.utils;
 
 import com.db4o.Db4oEmbedded;
@@ -16,8 +28,12 @@ import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserRevision;
 
 /**
+ * DbUtility.java
  *
- * @author viper
+ * This class deals with CRUD operation with db4o. We chose db4o because it is
+ * compact, easy to use, works with the Java objects directly and self-contained.
+ * You are free to modify this class to work with other database providers.
+ * @author Ronald Kurniawan
  */
 public class DbUtility {
 
@@ -25,6 +41,10 @@ public class DbUtility {
 	private ObjectContainer _userRevDb = null;
 	private ObjectContainer _serverRevDb = null;
 
+	/**
+	 * Creates a new instance of DbUtility. This method automatically opens all
+	 * the "tables" (so to speak) so we can start work.
+	 */
 	public DbUtility() {
 		if (_db == null) {
 			openMessageDb();
@@ -37,22 +57,37 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Closes all the "tables" associated with this instance.
+	 */
 	public void closeDbs() {
 		dbClose();
 		userRevisionDbClose();
 		serverRevisionDbClose();
 	}
 
+	/*
+	 * Opens the "table" associated with storing message objects.
+	 */
 	private void openMessageDb() {
 		// open the database
 		_db = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "messages.db");
 	}
 
+	/**
+	 * Returns the number of messages left in the database.
+	 * @return number of messages still in the database
+	 */
 	public int getMessagePopulations() {
 		ObjectSet result = _db.queryByExample(MessageDTO.class);
 		return result.size();
 	}
 
+	/**
+	 * Saves a message into the database for sending at a later time.
+	 * @param value - a <code>MessageDTO</code> object
+	 * @throws net.mobid.codetraq.utils.DbUtility.DbException - when a duplicate message is found
+	 */
 	public void saveMessage(MessageDTO value) throws DbException {
 		if (getMessageByTime(value.getTimestamp()).hasNext()) {
 			throw new DbException("Duplicate timestamp found");
@@ -60,6 +95,11 @@ public class DbUtility {
 		_db.store(value);
 	}
 
+	/**
+	 * Updates the number of attempts the server made to send this message.
+	 * This could indicate remote notification service is down.
+	 * @param value - a <code>MessageDTO</code> object, which should be updated
+	 */
 	public void updateMessageRetries(MessageDTO value) {
 		ObjectSet result = _db.queryByExample(value);
 		MessageDTO found = (MessageDTO)result.next();
@@ -67,6 +107,10 @@ public class DbUtility {
 		_db.store(found);
 	}
 
+	/**
+	 * Updates the status of message to "SENT".
+	 * @param value - a <code>MessageDTO</code> object, which should be updated
+	 */
 	public void updateMessageSent(MessageDTO value) {
 		ObjectSet result = _db.queryByExample(value);
 		MessageDTO found = (MessageDTO)result.next();
@@ -74,10 +118,17 @@ public class DbUtility {
 		_db.store(found);
 	}
 
+	/**
+	 * Retrieves all messages that are still unsent.
+	 * @return a <code>List</code> of unsent messages
+	 */
 	public List<MessageDTO> getAllUnsentMessages() {
 		return _db.query(MessageDTO.class);
 	}
 
+	/**
+	 * Deletes all messages that are marked "SENT".
+	 */
 	public void deleteAllSentMessages() {
 		MessageDTO template = new MessageDTO();
 		template.setSent(true);
@@ -89,6 +140,10 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Deletes a single message.
+	 * @param value - a <code>MessageDTO</code> that should be deleted
+	 */
 	public void deleteMessage(MessageDTO value) {
 		ObjectSet result = _db.queryByExample(value);
 		while(result.hasNext()) {
@@ -97,6 +152,11 @@ public class DbUtility {
 		}
 	}
 
+	/*
+	 * Returns a message that has a specified timestamp.
+	 * @param timeStamp - the required timestamp
+	 * @return an <code>ObjectSet</code> containing the message object(s)
+	 */
 	private ObjectSet getMessageByTime(long timeStamp) {
 		MessageDTO m = new MessageDTO();
 		m.setTimestamp(timeStamp);
@@ -104,6 +164,12 @@ public class DbUtility {
 		return result;
 	}
 
+	/**
+	 * Queries the number of attemps to send a specific message has. The output
+	 * would only be visible from the console.
+	 * @param serverName - server name which the message refers to
+	 * @param timestamp - the timestamp of the message
+	 */
 	public void logCheckRetries(String serverName, long timestamp) {
 		MessageDTO m = new MessageDTO();
 		m.setServerName(serverName);
@@ -117,6 +183,12 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Checks whether a message has been deleted from the database. The status would
+	 * only be visible from the console.
+	 * @param serverName - server name which the message refers to
+	 * @param timestamp - the timetamp of the message
+	 */
 	public void logCheckDelete(String serverName, long timestamp) {
 		MessageDTO m = new MessageDTO();
 		m.setServerName(serverName);
@@ -132,7 +204,10 @@ public class DbUtility {
 				" still in database.");
 		}
 	}
-	
+
+	/*
+	 * Closes the message "table"
+	 */
 	private void dbClose() {
 		if (_db != null) {
 			_db.close();
@@ -140,21 +215,37 @@ public class DbUtility {
 	}
 
 	// USER REVISION database
+	/*
+	 * Opens the user revision "table"
+	 */
 	private void openUserRevisionDb() {
 		_userRevDb = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "user.db");
 	}
 
+	/*
+	 * Closes the user revision "table"
+	 */
 	private void userRevisionDbClose() {
 		if (_userRevDb != null) {
 			_userRevDb.close();
 		}
 	}
 
+	/**
+	 * Returns the number of user revision in the database.
+	 * @return the number of user revisions
+	 */
 	public int getUserRecordPopulations() {
 		ObjectSet result = _userRevDb.queryByExample(UserRevision.class);
 		return result.size();
 	}
 
+	/**
+	 * Queries whether a specified server (URL) has been saved into the database.
+	 * @param address - server URL
+	 * @param owner - user ID who "owns" this server
+	 * @return
+	 */
 	public boolean isServerInUserRecord(String address, String owner) {
 		UserRevision r = new UserRevision();
 		r.setOwner(owner);
@@ -166,6 +257,11 @@ public class DbUtility {
 		return false;
 	}
 
+	/**
+	 * Add a new user revision object into the database.
+	 * @param address - server URL
+	 * @param owner - user ID who "owns" this server
+	 */
 	public void addServerToUserRecord(String address, String owner) {
 		UserRevision r = new UserRevision();
 		r.setServerAddress(address);
@@ -180,6 +276,12 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Returns the user revision object for the specified URL and user ID.
+	 * @param address - server URL
+	 * @param owner - user ID who "owns" this server
+	 * @return a <code>UserRevision</code> object
+	 */
 	public UserRevision getUserLatestRevision(String address, String owner) {
 		UserRevision r = new UserRevision();
 		r.setServerAddress(address);
@@ -192,6 +294,10 @@ public class DbUtility {
 		return null;
 	}
 
+	/**
+	 * Updates a user revision object with new information.
+	 * @param ur - <code>UserRevision</code> object to update
+	 */
 	public void updateUserLatestRevision(UserRevision ur) {
 		UserRevision r = new UserRevision();
 		r.setServerAddress(ur.getServerAddress());
@@ -205,21 +311,35 @@ public class DbUtility {
 	}
 
 	// SERVER REVISION
+	/*
+	 * Opens the Server Revision "table".
+	 */
 	private void openServerRevisionDb() {
 		_serverRevDb = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "revision.db");
 	}
 
+	/*
+	 * Closes the ServerRevision "table".
+	 */
 	private void serverRevisionDbClose() {
 		if (_serverRevDb != null) {
 			_serverRevDb.close();
 		}
 	}
 
+	/**
+	 * Returns the number of ServerRevision objects in the database.
+	 * @return number of <code>ServerRevision</code> objects
+	 */
 	public int getServerRevisionPopulations() {
 		ObjectSet result = _serverRevDb.queryByExample(ServerRevision.class);
 		return result.size();
 	}
 
+	/**
+	 * Returns a list of all ServerRevision objects in the database.
+	 * @return a <code>List</code> of all <code>ServerRevision</code> objects
+	 */
 	public List<ServerRevision> getAllServerRevisions() {
 		List<ServerRevision> list = new ArrayList<ServerRevision>();
 		ServerRevision sr = new ServerRevision();
@@ -230,6 +350,11 @@ public class DbUtility {
 		return list;
 	}
 
+	/**
+	 * Returns a ServerRevision objects specified by a server URL.
+	 * @param address - server URL
+	 * @return a <code>ServerRevision</code> object
+	 */
 	public ServerRevision getServerRevisionByAddress(String address) {
 		ServerRevision template = new ServerRevision();
 		template.setServerAddress(address);
@@ -240,6 +365,10 @@ public class DbUtility {
 		return null;
 	}
 
+	/**
+	 * Adds a ServerRevision object into the database.
+	 * @param sr - <code>ServerRevision</code> object to be added
+	 */
 	public void addServerRevision(ServerRevision sr) {
 		int srs = getServerRevisionPopulations();
 		_serverRevDb.store(sr);
@@ -251,6 +380,10 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Updates a ServerRevision object with new information.
+	 * @param sr - <code>ServerRevision</code> object to be updated
+	 */
 	public void updateServerLatestRevision(ServerRevision sr) {
 		ServerRevision template = new ServerRevision();
 		template.setServerAddress(sr.getServerAddress());
@@ -271,6 +404,10 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Toggles the "update" flag of a certain ServerRevision to "ON".
+	 * @param sr - <code>ServerRevision</code> to be flagged
+	 */
 	public void turnServerUpdateOn(ServerRevision sr) {
 		ServerRevision template = new ServerRevision();
 		template.setServerAddress(sr.getServerAddress());
@@ -282,6 +419,10 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Toggles the "update" flag of a certain ServerRevision to "OFF".
+	 * @param sr - <code>ServerRevision</code> to be flagged
+	 */
 	public void turnServerUpdateOff(ServerRevision sr) {
 		ServerRevision template = new ServerRevision();
 		template.setServerAddress(sr.getServerAddress());
@@ -293,6 +434,9 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * Toggles the "update" flag of all ServerRevision objects to "OFF".
+	 */
 	public void turnAllServerUpdateOff() {
 		ServerRevision template = new ServerRevision();
 		ObjectSet result = _serverRevDb.queryByExample(template);
@@ -303,6 +447,9 @@ public class DbUtility {
 		}
 	}
 
+	/**
+	 * DbException
+	 */
 	public class DbException extends Exception {
 
 		public DbException(String message) {
