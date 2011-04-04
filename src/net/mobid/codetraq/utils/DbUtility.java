@@ -28,12 +28,12 @@ import net.mobid.codetraq.persistence.ServerRevision;
 import net.mobid.codetraq.persistence.UserRevision;
 
 /**
- * DbUtility.java
- *
  * This class deals with CRUD operation with db4o. We chose db4o because it is
  * compact, easy to use, works with the Java objects directly and self-contained.
  * You are free to modify this class to work with other database providers.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class DbUtility {
 

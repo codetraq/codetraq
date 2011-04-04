@@ -29,11 +29,11 @@ import net.mobid.codetraq.utils.DbUtility;
 import net.mobid.codetraq.utils.LogService;
 
 /**
- * SvnChecker.java
- *
- * This class serves as a worker class that monitor for changes on a given
+ * This class serves as a worker class that monitor for revisions on a given
  * subversion server.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class SvnChecker extends VersionControlChecker implements Runnable {
 

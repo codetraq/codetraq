@@ -25,10 +25,10 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
- * LogService.java
+ * Custom logging class for CodeTraq. It is also capable to write to a log file.
  *
- * Custom logging class that also writes to a log file.
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class LogService extends Logger {
 

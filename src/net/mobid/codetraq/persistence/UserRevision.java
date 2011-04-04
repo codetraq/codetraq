@@ -19,11 +19,11 @@
 package net.mobid.codetraq.persistence;
 
 /**
- * RevisionDTO.java
- *
  * This class holds the record for revision data for a certain pairing of server
  * and user.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class UserRevision {
 

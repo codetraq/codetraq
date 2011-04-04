@@ -30,14 +30,14 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.codec.binary.Base64;
 
 /**
- * PasswordProcessor.java
- *
  * Encrypt and decrypt passwords. These functions are used heavily in connection
  * with configuration file processing. <b>NOTE:</b> You should definitely change
  * the <code>passPhrase</code> value and then recompile this project before using
  * it in your own server. This would make it difficult for any unauthorised person
  * to guess the passwords stored in your configuration files.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class PasswordProcessor {
 

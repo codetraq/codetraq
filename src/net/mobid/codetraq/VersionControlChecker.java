@@ -28,11 +28,11 @@ import net.mobid.codetraq.utils.DbUtility.DbException;
 import net.mobid.codetraq.utils.LogService;
 
 /**
- * VersionControlChecker.java
- *
  * This is an abstract class that defines the behaviour of a Version Control
  * checker.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public abstract class VersionControlChecker {
 
@@ -79,6 +79,11 @@ public abstract class VersionControlChecker {
 	 */
 	public abstract boolean compareLatestRevisionHistory() throws Exception;
 
+	/**
+	 * Adds a new revision message into the database to be picked up and sent later
+	 * by the <code>MessageTracker</code>.
+	 * @param sr - a <code>ServerRevision</code> object
+	 */
 	protected void sendRevisionMessage(ServerRevision sr) {
 		MessageDTO message = new MessageDTO();
 		message.setAuthor(sr.getLastAuthor());

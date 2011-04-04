@@ -19,10 +19,10 @@
 package net.mobid.codetraq;
 
 /**
- * ITalker.java
- *
  * Interface for notification mechanism.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public interface ITalker {
 

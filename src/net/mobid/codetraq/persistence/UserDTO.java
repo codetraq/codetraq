@@ -21,10 +21,10 @@ package net.mobid.codetraq.persistence;
 import net.mobid.codetraq.ConnectionType;
 
 /**
- * UserDTO.java
- *
  * This is a template to persist user-related data into the memory.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class UserDTO implements Comparable<UserDTO> {
 

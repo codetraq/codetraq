@@ -34,12 +34,12 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 
 /**
- * XMPPTalker.java
- *
  * This class implements the CodeTraq connector to XMPP-based instant messaging
  * service. Currently, this class works perfectly well for GoogleTalk and Jabber.org
  * clients.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class XMPPTalker implements ITalker {
 

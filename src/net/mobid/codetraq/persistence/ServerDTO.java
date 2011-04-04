@@ -21,10 +21,10 @@ package net.mobid.codetraq.persistence;
 import net.mobid.codetraq.VersionControlType;
 
 /**
- * ServerDTO.java
+ * This is a template for storing Server objects in memory.
  *
- * This is a template for storing Server objects in memory
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class ServerDTO {
 

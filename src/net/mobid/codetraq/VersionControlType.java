@@ -19,11 +19,11 @@
 package net.mobid.codetraq;
 
 /**
- * VersionControlType.java
- *
- * Enumeration containing the types of Version Control System we support.<br/>
+ * Enumeration containing the types of Version Control System we support.
  * Currently we support Subversion and Git.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public enum VersionControlType {
 

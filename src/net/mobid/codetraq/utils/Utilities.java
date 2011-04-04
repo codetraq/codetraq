@@ -43,10 +43,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Utilities.java
+ * This class hosts utility methods which can be useful in multiple places.
  *
- * This class hosts methods which can be useful in multiple places.
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class Utilities {
 

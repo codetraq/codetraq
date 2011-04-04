@@ -24,10 +24,10 @@ import net.mobid.codetraq.VersionControlType;
 import org.joda.time.Period;
 
 /**
- * ServerRevision.java
- *
  * Records the latest revision number for a server.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class ServerRevision {
 

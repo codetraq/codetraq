@@ -50,10 +50,13 @@ import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
 
 /**
- * GitChecker.java
- *
  * This is a worker class whose purpose is to monitor changes on a given git server.
+ * A local repository would be created and the project would be cloned. If a local
+ * repository already exists, then a "pull" is performed. Revision comparison is
+ * then performed locally.
+ * 
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class GitChecker extends VersionControlChecker implements Runnable {
 

@@ -32,12 +32,12 @@ import net.mobid.codetraq.persistence.MessageDTO;
 import net.mobid.codetraq.utils.LogService;
 
 /**
- * EmailTalker.java
- *
  * This class implements ITalker interface for sending emails to client. This class
  * works perfectly with GMail SMTP server. We have trouble testing this with Hotmail
  * SMTP server. You might have some luck getting it to work with your ISP's SMTP server.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class EmailTalker implements ITalker {
 

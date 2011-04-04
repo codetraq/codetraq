@@ -46,12 +46,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Main.java
- *
  * This is the entry point for the CodeTraq daemon program. Setup all necessary
  * component, then run all the runnables.
  *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class Main {
 

@@ -39,11 +39,11 @@ import net.sf.jml.event.MsnSwitchboardAdapter;
 import net.sf.jml.impl.MsnMessengerFactory;
 
 /**
- * MSNTalker.java
- *
  * This is the implementation of ITalker interface for MSN Protocol.
  * We are using JML for implementation.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class MSNTalker implements ITalker {
 

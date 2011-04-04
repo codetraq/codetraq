@@ -19,10 +19,10 @@
 package net.mobid.codetraq;
 
 /**
- * ConnectionType.java
- *
  * Enumeration containing the Notification types available for communication.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public enum ConnectionType {
 

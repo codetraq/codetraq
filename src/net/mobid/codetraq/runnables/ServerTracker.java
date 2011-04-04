@@ -53,13 +53,13 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 /**
- * ServerTracker.java
- *
  * This is a worker class that tracks and updates the revision history of a
  * server. As you might have guessed, this class works by polling the respective
  * repository servers after UPDATE_IN_MINUTES elapsed. You should set an update time
  * that is convenient for your own circumnstances.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class ServerTracker implements Runnable {
 

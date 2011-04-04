@@ -27,14 +27,14 @@ import net.mobid.codetraq.utils.DbUtility;
 import net.mobid.codetraq.utils.LogService;
 
 /**
- * MessageTracker.java
- *
  * This class tracks the message database and sends (or try to send) any message
  * left in the database. The daemon will always try to delete a message after it
  * succesfully being sent. You should set the Message Round (the number of minutes
  * between sending message process) to a number that is suitable for your own
  * circumstances.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class MessageTracker implements Runnable {
 

@@ -23,12 +23,12 @@ import java.util.List;
 import net.mobid.codetraq.utils.Utilities;
 
 /**
- * MessageDTO.java
- *
  * This is the Message Object that can be saved into db4o. Unsent Message(s) go
  * into the database and the main process will query into the database every so
  * often to try to send them.
+ *
  * @author Ronald Kurniawan
+ * @version 0.1
  */
 public class MessageDTO {
 
