@@ -1,1 +1,97 @@
 		== CodeTraq ==
+
+
+CodeTraq is a Java daemon application that monitors latest revisions from code repositories. Currently CodeTraq
+supports Subversion and Git servers. Details of repository servers are stored in the configuration file (ctraq.xml),
+which is located in the same location as CodeTraq.jar.
+
+The central idea of this daemon is to have a thread that polls remote repository servers every x minutes (can be changed).
+If a repository has a new revision, the daemon would record this new revision. Another thread would monitor the users,
+if a user has not already being informed about the newest revision, it would send out a notification through the preferred
+notification service.
+
+The configuration file has the following structure:
+	
+	<codetraq>
+		<user id=".." name=".." notificationid=".." type=".." />
+		..
+		..
+		..
+		<traq notificationid=".." password=".." type=".." />
+		<traq notificationid=".." password=".." type=".." host=".." port=".." ssl=".." tls=".." />
+		..
+		..
+		..
+		<server address=".." type=".." owner=".." username=".." password=".." sname=".." />
+		<server address=".." type=".." owner=".." username=".." password=".." sname=".." branch=".." />
+		..
+		..
+		..
+	</codetraq>
+	
+The "user" element has the following attributes:
+	* id: at the moment we use 4-digit unique identifier (a number between 1000-9999) to identify each user
+	* name: a "nickname" for each user
+	* notificationid: the username for the user's selected messenger service or in case of type "email",
+		user's email address
+	* type: possible values are "gtalk" (for google talk connection type), "jabber" (for jabber.org account),
+		"msn" (for MSN type account) or "email" (for email address)
+		
+All attributes are mandatory.
+
+The "traq" element describes the daemon's connection(s) to each messenger service for the purpose of sending 
+messages to client (subscribers). The following attributes are mandatory for a "traq" element:
+	* notificationid: the username for daemon's account for a particular messenger service
+	* password: the password for daemon's account for a particular messenger service. This is NOT a plaintext,
+		rather it is an encrypted value. See net.mobid.codetraq.utils.PasswordProcessor class for the 
+		encryption/decryption details
+	* type: possible values are "gtalk" (for google talk connection type), "jabber" (for jabber.org account),
+		"msn" (for MSN account) or "email" (for email account)
+
+The following attributes are mandatory for "traq" element of the type "email":
+	* host: SMTP server URL
+	* port: SMTP server port for sending email messages
+	* ssl: whether SMTP server should use SSL when sending emails (possible values: "true" or "false")
+	* tls: whether SMTP server should use TLS when sending emails (possible values: "true" or "false")
+	
+The "server" element describes the remote code repository server which should be monitored. A "server" must only
+have one "user" (which is its owner), while a "user" can have multiple "server" elements. The following attributes
+are mandatory for a "server" element:
+	* address: the remote repository URL. Subversion servers must have one of the following protocol preceeding 
+		the URL, http, https, svn and svn+ssh. We do not support local repositories.
+	* type: possible values are "svn" or "git"
+	* owner: the id of "user" who owns this server (See explanation on "user" element above)
+	* username: the username for accessing the repository server
+	* password: the password for accessing the repository server. This is NOT a plaintext, rather it is an
+		encrypted value. See net.mobid.codetraq.utils.PasswordProcessor class for the encryption/decryption
+		details
+	* sname: short name (or "nickname" if you'd rather) for the server. This value must be unique across
+		all "server"s in the configuration file
+		
+For "server" element of the type "git", the following attribute is also mandatory:
+	* branch: the branch we would like to monitor (for example: "master" to follow the HEAD branch)
+
+LIBRARIES
+---------
+The following libraries are needed to build and run CodeTraq. The version of each .jar file is what was used at
+the time of release:
+	* commons-codec-1.4.jar (Apache Commons project)
+	* commons-logging-1.1.1.jar (Apache Commons project)
+	* db4o-8.0.184.15484-core-java5.jar (db4o database project)
+	* httpcore-4.1.jar (Apache Commons project)
+	* jml-1.0b4.jar (Java MSN Messenger library)
+	* joda-time-1.6.2.jar (Joda Time project)
+	* jsch-0.1.44.jar (Java Secure Channel from JCraft)
+	* mail.jar (Java Mail API)
+	* org.eclipse.jgit-0.11.3.jar (JGIT project)
+	* smack.jar (XMPP library from Ignite Realtime)
+	* smackx.jar (XMPP library from Ignite Realtime)
+	* svnkit.jar (svn library from TMate)
+	
+All .jar files would be posted inside "lib" directory in CodeTraq's github repository.
+
+SYSTEM REQUIREMENTS
+-------------------
+
+CodeTraq requires Java Virtual Machine version 1.6 or later. It has been tested to work under Windows 7 and
+Ubuntu Linux 10.10.

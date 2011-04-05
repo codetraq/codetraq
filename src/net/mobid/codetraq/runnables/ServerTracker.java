@@ -195,8 +195,7 @@ public class ServerTracker implements Runnable {
 		if (!server.getServerAddress().startsWith("http://")
 				&& !server.getServerAddress().startsWith("https://")
 				&& !server.getServerAddress().startsWith("svn://")
-				&& !server.getServerAddress().startsWith("svn+ssh://")
-				&& !server.getServerAddress().startsWith("file:///")) {
+				&& !server.getServerAddress().startsWith("svn+ssh://")) {
 			System.out.printf("Server URL should start with protocol. Valid protocols are %s,%s,%s and %s%n",
 					"http", "https", "svn", "svn+ssh");
 			LogService.writeMessage("Wrong protocol for " + server.getServerAddress());
