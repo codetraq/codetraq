@@ -66,7 +66,6 @@ public class Main {
 	private static DbUtility _traqdb = null;
 	private final int USER_UPDATE_IN_MINUTES = 8;
 
-
 	/**
 	 * Read and parse CodeTraq configuration file (ctraq.xml) in current directory.
 	 * @return <code>Document</code> object containing the parsed configuration
@@ -174,188 +173,192 @@ public class Main {
 	 * <code>false</code> if reader encounters any errors.
 	 */
 	private boolean readConfigFile() {
-		// get codetraq notification id
-		NodeList traqs = getConfiguration().getElementsByTagName("traq");
-		if (traqs.getLength() > 0) {
-			for (int i = 0; i < traqs.getLength(); i++) {
-				Node traq = traqs.item(i);
-				if (!Utilities.checkNode("traq type", traq.getAttributes().getNamedItem("type"))
-						|| !Utilities.checkNode("traq notification id", traq.getAttributes().getNamedItem("notificationid"))
-						|| !Utilities.checkNode("traq notification password", traq.getAttributes().getNamedItem("password"))) {
-					System.out.printf("Please review your configuration file%n");
-					return false;
-				}
-				String type = traq.getAttributes().getNamedItem("type").getTextContent();
-				String notificationId = traq.getAttributes().getNamedItem("notificationid").getTextContent();
-				String password = PasswordProcessor.decryptString(traq.getAttributes().
-						getNamedItem("password").getTextContent());
-				if (!Utilities.checkValue("daemon notification type", type)
-						|| !Utilities.checkValue("daemon notification password", password)
-						|| !Utilities.checkValue("daemon notification id", notificationId)) {
-					return false;
-				}
-				String smtpHost = "";
-				int smtpPort = 0;
-				boolean smtpSsl = false;
-				boolean smtpTls = false;
-				if (type.equalsIgnoreCase("email")) {
-					if (!Utilities.checkNode("traq smtp host", traq.getAttributes().getNamedItem("host"))
-							|| !Utilities.checkNode("traq smtp port", traq.getAttributes().getNamedItem("port"))
-							|| !Utilities.checkNode("traq using ssl", traq.getAttributes().getNamedItem("ssl"))
-							|| !Utilities.checkNode("traq using tls", traq.getAttributes().getNamedItem("tls"))) {
+		try {
+			// get codetraq notification id
+			NodeList traqs = getConfiguration().getElementsByTagName("traq");
+			if (traqs.getLength() > 0) {
+				for (int i = 0; i < traqs.getLength(); i++) {
+					Node traq = traqs.item(i);
+					if (!Utilities.checkNode("traq type", traq.getAttributes().getNamedItem("type"))
+							|| !Utilities.checkNode("traq notification id", traq.getAttributes().getNamedItem("notificationid"))
+							|| !Utilities.checkNode("traq notification password", traq.getAttributes().getNamedItem("password"))) {
 						System.out.printf("Please review your configuration file%n");
 						return false;
 					}
-					smtpHost = traq.getAttributes().getNamedItem("host").getTextContent();
-					if (!Utilities.checkValue("daemon smtp host", smtpHost)) {
+					String type = traq.getAttributes().getNamedItem("type").getTextContent();
+					String notificationId = traq.getAttributes().getNamedItem("notificationid").getTextContent();
+					String password = PasswordProcessor.decryptString(traq.getAttributes().
+							getNamedItem("password").getTextContent());
+					if (!Utilities.checkValue("daemon notification type", type)
+							|| !Utilities.checkValue("daemon notification password", password)
+							|| !Utilities.checkValue("daemon notification id", notificationId)) {
 						return false;
 					}
-					String tPort = traq.getAttributes().getNamedItem("port").getTextContent();
-					try {
-						smtpPort = Integer.parseInt(tPort);
-					} catch (NumberFormatException nfe) {
-						LogService.getLogger(Main.class.getName()).log(Level.SEVERE, null, nfe);
-						LogService.writeLog(Level.SEVERE, nfe);
-						System.out.printf("traq smtp port should be a number between 1 - 65535. Please review your configuration file.%n");
+					String smtpHost = "";
+					int smtpPort = 0;
+					boolean smtpSsl = false;
+					boolean smtpTls = false;
+					if (type.equalsIgnoreCase("email")) {
+						if (!Utilities.checkNode("traq smtp host", traq.getAttributes().getNamedItem("host"))
+								|| !Utilities.checkNode("traq smtp port", traq.getAttributes().getNamedItem("port"))
+								|| !Utilities.checkNode("traq using ssl", traq.getAttributes().getNamedItem("ssl"))
+								|| !Utilities.checkNode("traq using tls", traq.getAttributes().getNamedItem("tls"))) {
+							System.out.printf("Please review your configuration file%n");
+							return false;
+						}
+						smtpHost = traq.getAttributes().getNamedItem("host").getTextContent();
+						if (!Utilities.checkValue("daemon smtp host", smtpHost)) {
+							return false;
+						}
+						String tPort = traq.getAttributes().getNamedItem("port").getTextContent();
+						try {
+							smtpPort = Integer.parseInt(tPort);
+						} catch (NumberFormatException nfe) {
+							LogService.getLogger(Main.class.getName()).log(Level.SEVERE, null, nfe);
+							LogService.writeLog(Level.SEVERE, nfe);
+							System.out.printf("traq smtp port should be a number between 1 - 65535. Please review your configuration file.%n");
+							return false;
+						}
+						String tSsl = traq.getAttributes().getNamedItem("ssl").getTextContent();
+						if (tSsl.equalsIgnoreCase("true") || tSsl.equalsIgnoreCase("yes")) {
+							smtpSsl = true;
+						}
+						String tTls = traq.getAttributes().getNamedItem("tls").getTextContent();
+						if (tTls.equalsIgnoreCase("true") || tTls.equalsIgnoreCase("yes")) {
+							smtpTls = true;
+						}
+					}
+					// it is possible that a second Talker implementing another notification type
+					// (e.g. "msn") might be implemented in the future. In that case, add another
+					// "else if" block below...
+					if (type.equalsIgnoreCase("gtalk") || type.equalsIgnoreCase("jabber")) {
+						if (_xmppTalker == null) {
+							ConnectionType cType = ConnectionType.JABBER;
+							if (type.equalsIgnoreCase("gtalk")) {
+								cType = ConnectionType.GOOGLE_TALK;
+							}
+							_xmppTalker = new XMPPTalker(notificationId, password, cType);
+						}
+					} else if (type.equalsIgnoreCase("msn")) {
+						if (_msnTalker == null) {
+							ConnectionType cType = ConnectionType.MSN;
+							_msnTalker = new MSNTalker(notificationId, password, cType);
+						}
+					} else if (type.equalsIgnoreCase("email")) {
+						if (_mailTalker == null) {
+							_mailTalker = new EmailTalker(notificationId, password, smtpHost, smtpPort, smtpSsl, smtpTls);
+						}
+					} else {
 						return false;
-					}
-					String tSsl = traq.getAttributes().getNamedItem("ssl").getTextContent();
-					if (tSsl.equalsIgnoreCase("true") || tSsl.equalsIgnoreCase("yes")) {
-						smtpSsl = true;
-					}
-					String tTls = traq.getAttributes().getNamedItem("tls").getTextContent();
-					if (tTls.equalsIgnoreCase("true") || tTls.equalsIgnoreCase("yes")) {
-						smtpTls = true;
 					}
 				}
-				// it is possible that a second Talker implementing another notification type
-				// (e.g. "msn") might be implemented in the future. In that case, add another
-				// "else if" block below...
+			}
+			// get list of users and servers
+			NodeList users = getConfiguration().getElementsByTagName("user");
+			for (int i = 0; i < users.getLength(); i++) {
+				Node user = users.item(i);
+				if (!Utilities.checkNode("user name", user.getAttributes().getNamedItem("name"))
+						|| !Utilities.checkNode("user id", user.getAttributes().getNamedItem("id"))
+						|| !Utilities.checkNode("user notification type", user.getAttributes().getNamedItem("type"))
+						|| !Utilities.checkNode("user notification id", user.getAttributes().getNamedItem("notificationid"))) {
+					System.out.printf("Please review your configuration file.%n");
+					return false;
+				}
+				String name = user.getAttributes().getNamedItem("name").getTextContent();
+				String id = user.getAttributes().getNamedItem("id").getTextContent();
+				String type = user.getAttributes().getNamedItem("type").getTextContent();
+				String notificationId = user.getAttributes().getNamedItem("notificationid").getTextContent();
+				if (!Utilities.checkValue("user nickname", name)
+						|| !Utilities.checkValue("user id", id)
+						|| !Utilities.checkValue("user notification type", type)
+						|| !Utilities.checkValue("user notification id", notificationId)) {
+					return false;
+				}
+				UserDTO u = new UserDTO();
+				u.setId(id);
+				u.setNickname(name);
+				u.setNotificationId(notificationId);
 				if (type.equalsIgnoreCase("gtalk") || type.equalsIgnoreCase("jabber")) {
-					if (_xmppTalker == null) {
-						ConnectionType cType = ConnectionType.JABBER;
-						if (type.equalsIgnoreCase("gtalk")) {
-							cType = ConnectionType.GOOGLE_TALK;
-						}
-						_xmppTalker = new XMPPTalker(notificationId, password, cType);
+					u.setNotificationType(type.equalsIgnoreCase("gtalk") ? ConnectionType.GOOGLE_TALK : ConnectionType.JABBER);
+					getUsers().add(u);
+					// check whether this contact is already in our contact list
+					if (!_xmppTalker.isInContactList(notificationId)) {
+						_xmppTalker.addToContactList(notificationId);
 					}
 				} else if (type.equalsIgnoreCase("msn")) {
-					if (_msnTalker == null) {
-						ConnectionType cType = ConnectionType.MSN;
-						_msnTalker = new MSNTalker(notificationId, password, cType);
-					}
+					u.setNotificationType(ConnectionType.MSN);
+					getUsers().add(u);
+					// check if contact is in our contact list
+					// because we need to wait for the messenger to be available,
+					// we pack this into a pending list
+					((MSNTalker) _msnTalker).getPendingCheckUser().add(notificationId);
 				} else if (type.equalsIgnoreCase("email")) {
-					if (_mailTalker == null) {
-						_mailTalker = new EmailTalker(notificationId, password, smtpHost, smtpPort, smtpSsl, smtpTls);
+					u.setNotificationType(ConnectionType.EMAIL);
+					getUsers().add(u);
+				}
+			}
+			NodeList servers = getConfiguration().getElementsByTagName("server");
+			for (int i = 0; i < servers.getLength(); i++) {
+				Node server = servers.item(i);
+				if (!Utilities.checkNode("server owner", server.getAttributes().getNamedItem("owner"))
+						|| !Utilities.checkNode("server nickname", server.getAttributes().getNamedItem("sname"))
+						|| !Utilities.checkNode("server address", server.getAttributes().getNamedItem("address"))
+						|| !Utilities.checkNode("server type", server.getAttributes().getNamedItem("type"))
+						|| !Utilities.checkNode("server username", server.getAttributes().getNamedItem("username"))
+						|| !Utilities.checkNode("server password", server.getAttributes().getNamedItem("password"))) {
+					System.out.printf("Please review your configuration file.%n");
+					return false;
+				}
+				String owner = server.getAttributes().getNamedItem("owner").getTextContent();
+				String shortName = server.getAttributes().getNamedItem("sname").getTextContent();
+				String sAddress = server.getAttributes().getNamedItem("address").getTextContent();
+				String sType = server.getAttributes().getNamedItem("type").getTextContent();
+				String sUsername = server.getAttributes().getNamedItem("username").getTextContent();
+				String sPassword = PasswordProcessor.decryptString(server.getAttributes().
+						getNamedItem("password").getTextContent());
+				if (!Utilities.checkValue("owner id", owner) || !Utilities.checkValue("server name", shortName)
+						|| !Utilities.checkValue("server address", sAddress)
+						|| !Utilities.checkValue("server type", sType)
+						|| !Utilities.checkValue("server username", sUsername)
+						|| !Utilities.checkValue("server password", sPassword)) {
+					return false;
+				}
+				// need to check that server's short name is unique, as we need it to
+				// create git local repo (if type is 'git')
+				if (!Utilities.checkServerShortName(getServers(), shortName)) {
+					System.out.printf("Server short name must be unique. '%s' is already used for another server.%n",
+							shortName);
+					return false;
+				}
+				// if this is a GIT repo, we need a branch name
+				String sBranch = null;
+				if (sType.equalsIgnoreCase("git")) {
+					if (!Utilities.checkNode("git branch", server.getAttributes().getNamedItem("branch"))) {
+						System.out.printf("GIT server %s does not have a specified branch. Please review your configuration file.%n",
+								sAddress);
+						return false;
 					}
-				} else {
-					return false;
+					sBranch = server.getAttributes().getNamedItem("branch").getTextContent();
+					if (!Utilities.checkValue("git branch", sBranch)) {
+						return false;
+					}
 				}
-			}
-		}
-		// get list of users and servers
-		NodeList users = getConfiguration().getElementsByTagName("user");
-		for (int i = 0; i < users.getLength(); i++) {
-			Node user = users.item(i);
-			if (!Utilities.checkNode("user name", user.getAttributes().getNamedItem("name"))
-					|| !Utilities.checkNode("user id", user.getAttributes().getNamedItem("id"))
-					|| !Utilities.checkNode("user notification type", user.getAttributes().getNamedItem("type"))
-					|| !Utilities.checkNode("user notification id", user.getAttributes().getNamedItem("notificationid"))) {
-				System.out.printf("Please review your configuration file.%n");
-				return false;
-			}
-			String name = user.getAttributes().getNamedItem("name").getTextContent();
-			String id = user.getAttributes().getNamedItem("id").getTextContent();
-			String type = user.getAttributes().getNamedItem("type").getTextContent();
-			String notificationId = user.getAttributes().getNamedItem("notificationid").getTextContent();
-			if (!Utilities.checkValue("user nickname", name)
-					|| !Utilities.checkValue("user id", id)
-					|| !Utilities.checkValue("user notification type", type)
-					|| !Utilities.checkValue("user notification id", notificationId)) {
-				return false;
-			}
-			UserDTO u = new UserDTO();
-			u.setId(id);
-			u.setNickname(name);
-			u.setNotificationId(notificationId);
-			if (type.equalsIgnoreCase("gtalk") || type.equalsIgnoreCase("jabber")) {
-				u.setNotificationType(type.equalsIgnoreCase("gtalk") ? ConnectionType.GOOGLE_TALK : ConnectionType.JABBER);
-				getUsers().add(u);
-				// check whether this contact is already in our contact list
-				if (!_xmppTalker.isInContactList(notificationId)) {
-					_xmppTalker.addToContactList(notificationId);
+				ServerDTO s = new ServerDTO();
+				s.setOwnerId(owner);
+				s.setShortName(shortName);
+				if (sType.equalsIgnoreCase("svn")) {
+					s.setServerType(VersionControlType.SVN);
+				} else if (sType.equalsIgnoreCase("git")) {
+					s.setServerType(VersionControlType.GIT);
+					s.setServerBranch(sBranch);
 				}
-			} else if (type.equalsIgnoreCase("msn")) {
-				u.setNotificationType(ConnectionType.MSN);
-				getUsers().add(u);
-				// check if contact is in our contact list
-				// because we need to wait for the messenger to be available,
-				// we pack this into a pending list
-				((MSNTalker) _msnTalker).getPendingCheckUser().add(notificationId);
-			} else if (type.equalsIgnoreCase("email")) {
-				u.setNotificationType(ConnectionType.EMAIL);
-				getUsers().add(u);
+				s.setServerAddress(sAddress);
+				s.setServerUsername(sUsername);
+				s.setServerPassword(sPassword);
+				getServers().add(s);
 			}
-		}
-		NodeList servers = getConfiguration().getElementsByTagName("server");
-		for (int i = 0; i < servers.getLength(); i++) {
-			Node server = servers.item(i);
-			if (!Utilities.checkNode("server owner", server.getAttributes().getNamedItem("owner"))
-					|| !Utilities.checkNode("server nickname", server.getAttributes().getNamedItem("sname"))
-					|| !Utilities.checkNode("server address", server.getAttributes().getNamedItem("address"))
-					|| !Utilities.checkNode("server type", server.getAttributes().getNamedItem("type"))
-					|| !Utilities.checkNode("server username", server.getAttributes().getNamedItem("username"))
-					|| !Utilities.checkNode("server password", server.getAttributes().getNamedItem("password"))) {
-				System.out.printf("Please review your configuration file.%n");
-				return false;
-			}
-			String owner = server.getAttributes().getNamedItem("owner").getTextContent();
-			String shortName = server.getAttributes().getNamedItem("sname").getTextContent();
-			String sAddress = server.getAttributes().getNamedItem("address").getTextContent();
-			String sType = server.getAttributes().getNamedItem("type").getTextContent();
-			String sUsername = server.getAttributes().getNamedItem("username").getTextContent();
-			String sPassword = PasswordProcessor.decryptString(server.getAttributes().
-					getNamedItem("password").getTextContent());
-			if (!Utilities.checkValue("owner id", owner) || !Utilities.checkValue("server name", shortName)
-					|| !Utilities.checkValue("server address", sAddress)
-					|| !Utilities.checkValue("server type", sType)
-					|| !Utilities.checkValue("server username", sUsername)
-					|| !Utilities.checkValue("server password", sPassword)) {
-				return false;
-			}
-			// need to check that server's short name is unique, as we need it to
-			// create git local repo (if type is 'git')
-			if (!Utilities.checkServerShortName(getServers(), shortName)) {
-				System.out.printf("Server short name must be unique. '%s' is already used for another server.%n",
-					shortName);
-				return false;
-			}
-			// if this is a GIT repo, we need a branch name
-			String sBranch = null;
-			if (sType.equalsIgnoreCase("git")) {
-				if (!Utilities.checkNode("git branch", server.getAttributes().getNamedItem("branch"))) {
-					System.out.printf("GIT server %s does not have a specified branch. Please review your configuration file.%n",
-						sAddress);
-					return false;
-				}
-				sBranch = server.getAttributes().getNamedItem("branch").getTextContent();
-				if (!Utilities.checkValue("git branch", sBranch)) {
-					return false;
-				}
-			}
-			ServerDTO s = new ServerDTO();
-			s.setOwnerId(owner);
-			s.setShortName(shortName);
-			if (sType.equalsIgnoreCase("svn")) {
-				s.setServerType(VersionControlType.SVN);
-			} else if (sType.equalsIgnoreCase("git")) {
-				s.setServerType(VersionControlType.GIT);
-				s.setServerBranch(sBranch);
-			}
-			s.setServerAddress(sAddress);
-			s.setServerUsername(sUsername);
-			s.setServerPassword(sPassword);
-			getServers().add(s);
+		} catch (Exception ex) {
+			LogService.writeLog(Level.SEVERE, ex);
 		}
 		// if encountering any error return false
 		return true;

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="CodeTraq" default="all" basedir=".">
+	<description>Builds CodeTraq executable jar and documentation.</description>
+	<property name="DIST" value="dist" />
+	<property name="JAVADOC" value="javadoc" />
+	<property name="SRC" value="src" />
+	<property name="CLASSES" value="classes" />
+	<property name="LIB" value="lib" />
+	<property name="BUILDER" value="MOBID.ELF" />
+
+	<path id="PROJECT.LIBRARIES">
+		<fileset dir="${LIB}">
+			<include name="**.jar" />
+		</fileset>
+	</path>
+
+	<target name="init" description="Creates directories to hold build files.">
+		<mkdir dir="${DIST}" />
+		<mkdir dir="${DIST}/${CLASSES}" />
+	</target>
+	
+	<target name="init-javadoc" description="Creates a javadoc directory to hold documentation files.">
+		<mkdir dir="${DIST}/${JAVADOC}" />
+	</target>
+	
+	<target name="build.jar" depends="init" description="Compiles the source files and builds a .jar file.">
+		<javac verbose="true" srcdir="${SRC}" destdir="${DIST}/${CLASSES}">
+			<classpath refid="PROJECT.LIBRARIES" />
+		</javac>
+		<manifest file="MANIFEST.MF">
+			<attribute name="Manifest-Version" value="1.0" />
+			<attribute name="Ant-Version" value="${ant.version}" />
+			<attribute name="Created-By" value="${java.version} (${java.vendor})" />
+			<attribute name="Built-By" value="${BUILDER}" />
+			<attribute name="Main-Class" value="net.mobid.codetraq.Main" />
+			<attribute name="Class-Path" value="lib/smack.jar lib/smackx.jar lib/joda-time-1.6.2.jar lib/db4o-8.0.184.15484-core-java5.jar lib/svnkit.jar lib/commons-codec-1.4.jar lib/jml-1.0b4.jar lib/commons-logging-1.1.1.jar lib/httpcore-4.1.jar lib/mail.jar lib/jsch-0.1.44.jar lib/org.eclipse.jgit-0.11.3.jar" />			
+		</manifest>
+		<jar destfile="${DIST}/CodeTraq.jar" basedir="${DIST}/${CLASSES}" manifest="MANIFEST.MF" />
+	</target>
+	
+	<target name="build.doc" depends="init-javadoc" description="Compiles the documentation.">
+		<javadoc packagenames="net.mobid.codetraq,net.mobid.codetraq.persistence,net.mobid.codetraq.runnables,
+			net.mobid.codetraq.talkers,net.mobid.codetraq.utils"
+			sourcepath="${SRC}"
+			destdir="${DIST}/${JAVADOC}"
+			classpathref="PROJECT.LIBRARIES"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="CodeTraq Documentation" />
+	</target>
+	
+	<target name="clean">
+		<echo message="Cleaning build files..." />
+		<delete verbose="true" dir="${DIST}" />
+		<delete verbose="true" file="MANIFEST.MF" />
+	</target>
+	
+	<target name="all" description="Builds the classes and documentation.">
+		<echo message="Building classes and package them into a .jar file..." />
+		<antcall target="build.jar" />
+		<echo message="Building documentation..." />
+		<antcall target="build.doc" />
+	</target>
+</project>
