@@ -1,5 +1,6 @@
 		== CodeTraq ==
 
+CodeTraq is licensed under GPLv3.
 
 CodeTraq is a Java daemon application that monitors latest revisions from code repositories. Currently CodeTraq
 supports Subversion and Git servers. Details of repository servers are stored in the configuration file (ctraq.xml),
@@ -94,4 +95,4 @@ SYSTEM REQUIREMENTS
 -------------------
 
 CodeTraq requires Java Virtual Machine version 1.6 or later. It has been tested to work under Windows 7 and
-Ubuntu Linux 10.10.
+Ubuntu Linux 10.10. To build the source code, you need to have Ant installed. 
